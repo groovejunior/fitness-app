@@ -1,8 +1,9 @@
 // The design system. Every screen builds from these; keep styling here, not in screens.
-import { useEffect, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { useEffect, useRef, type ButtonHTMLAttributes, type PointerEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon, type IconName } from './Icon';
 import type { SessionType } from '../engine/types';
+import { sheetDragY, shouldDismissSheet, TAP_SLOP_PX } from './sheetDrag';
 
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ');
 
@@ -362,10 +363,51 @@ export function Tag({ children, tone = 'neutral' }: { children: ReactNode; tone?
 // ---------------------------------------------------------------------------
 // Bottom sheet
 
+const SHEET_EASE = 'transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1)';
+
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title?: string; children: ReactNode }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const drag = useRef({ active: false, fromHandle: false, startY: 0, lastY: 0, lastT: 0, vel: 0, y: 0, closing: false });
+
+  const apply = (y: number, animate: boolean) => {
+    const panel = panelRef.current;
+    const backdrop = backdropRef.current;
+    if (panel) {
+      panel.style.animation = 'none';
+      panel.style.transition = animate ? SHEET_EASE : 'none';
+      panel.style.transform = `translateY(${y}px)`;
+    }
+    if (backdrop) {
+      backdrop.style.transition = animate ? 'opacity 0.32s ease' : 'none';
+      backdrop.style.opacity = String(Math.max(0, 1 - y / 400));
+    }
+  };
+
+  const dismiss = () => {
+    const d = drag.current;
+    if (d.closing) return;
+    d.closing = true;
+    d.active = false;
+    const height = panelRef.current?.getBoundingClientRect().height ?? 480;
+    apply(height + 32, true);
+    window.setTimeout(() => onCloseRef.current(), 300);
+  };
+  const dismissRef = useRef(dismiss);
+  dismissRef.current = dismiss;
+
   useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    if (!open) {
+      drag.current.closing = false;
+      drag.current.y = 0;
+      drag.current.active = false;
+      return;
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') dismissRef.current();
+    };
     window.addEventListener('keydown', onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -373,15 +415,85 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = prev;
     };
-  }, [open, onClose]);
+  }, [open]);
+
+  const onDown = (fromHandle: boolean) => (e: PointerEvent<HTMLElement>) => {
+    if (drag.current.closing) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const d = drag.current;
+    d.active = true;
+    d.fromHandle = fromHandle;
+    d.startY = e.clientY;
+    d.lastY = e.clientY;
+    d.lastT = performance.now();
+    d.vel = 0;
+    d.y = 0;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onMove = (e: PointerEvent<HTMLElement>) => {
+    const d = drag.current;
+    if (!d.active) return;
+    const now = performance.now();
+    const y = sheetDragY(d.startY, e.clientY);
+    const dt = now - d.lastT;
+    if (dt > 0) d.vel = (e.clientY - d.lastY) / dt;
+    d.lastY = e.clientY;
+    d.lastT = now;
+    d.y = y;
+    apply(y, false);
+  };
+
+  const onUp = () => {
+    const d = drag.current;
+    if (!d.active) return;
+    d.active = false;
+    if (d.y < TAP_SLOP_PX) {
+      if (d.fromHandle) dismiss();
+      return;
+    }
+    if (shouldDismissSheet(d.y, d.vel)) dismiss();
+    else apply(0, true);
+  };
+
+  const dragBind = (fromHandle: boolean) => ({
+    onPointerDown: onDown(fromHandle),
+    onPointerMove: onMove,
+    onPointerUp: onUp,
+    onPointerCancel: onUp,
+  });
+
   if (!open) return null;
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="fade-in absolute inset-0 bg-black/35" onClick={onClose} />
-      <div className="sheet-up safe-bottom relative max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] bg-surface px-5 pb-4 pt-3 shadow-soft">
-        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line" />
-        {title && <h3 className="mb-3 text-[20px] font-semibold tracking-tight">{title}</h3>}
-        {children}
+    <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true" aria-label={title} data-testid="sheet">
+      <div ref={backdropRef} className="fade-in absolute inset-0 bg-black/35" onClick={dismiss} />
+      <div
+        ref={panelRef}
+        className="sheet-up safe-bottom relative flex max-h-[88vh] w-full max-w-lg flex-col rounded-t-[1.75rem] bg-surface shadow-soft"
+      >
+        <button
+          type="button"
+          data-testid="sheet-handle"
+          aria-label="Close"
+          className="flex w-full shrink-0 touch-none select-none items-center justify-center pb-2 pt-3"
+          {...dragBind(true)}
+          onClick={(e) => {
+            // Mouse/touch already closed in onPointerUp. Keyboard activation uses click.
+            if (e.detail !== 0) {
+              e.preventDefault();
+              return;
+            }
+            dismiss();
+          }}
+        >
+          <span className="h-1.5 w-10 rounded-full bg-line" aria-hidden />
+        </button>
+        {title && (
+          <h3 className="mb-3 shrink-0 touch-none select-none px-5 text-[20px] font-semibold tracking-tight" {...dragBind(false)}>
+            {title}
+          </h3>
+        )}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-4">{children}</div>
       </div>
     </div>,
     document.body,

@@ -44,3 +44,10 @@ Key choices made while building v1, and why. Newest at the bottom of each sectio
 
 ## Design
 - One accent (deep green `#1f7a63`, lighter in dark mode) on warm neutrals. System font (SF Pro on iPhone). Large titles, soft cards, few borders, bottom tab bar.
+- **Bottom sheets are drag-to-dismiss.** The grabber bar was decorative in v1; it now follows the finger, snaps back on a short pull, and closes on a long pull, a flick, or a tap. Backdrop tap and Escape still close. The handle sits outside the scrolling body so it doesn't scroll away.
+
+## Training knowledge
+- **Cited rulebook, not a live AI and not copyrighted books in the repo.** Carlo asked to move off "general training knowledge" onto science. The coach stays a deterministic rule engine (offline, testable). Each rule will be pinned to an open paper or guideline. Settings has a short "Where the plan comes from" note; the full list and the "how we fold this in" plan live in `docs/TRAINING_KNOWLEDGE.md`.
+- **Sources we will actually use** (all free to read): Australian 24-hour movement guidelines, WHO 2020 physical activity guidelines, ACSM resistance-training position stands (2009 + 2025 overview of reviews), Seiler on easy/hard running, Schoenfeld/Grgic volume-frequency-rest reviews, Kotarsky on progressive calisthenic push-ups. Open Textbook of Exercise Physiology (MacIntosh, CC BY-NC) for the physiology background.
+- **We will not** copy Starting Strength, Overcoming Gravity, Bompa, etc. into the app. Ideas can inform a rule only when a citable paper says the same thing.
+- **The engine is not cited yet.** This decision is the map. Encoding citations and adjusting rules (rest times, bodyweight progressions, honest copy on the 10% run cap) is a later engine session, one family of rules at a time.

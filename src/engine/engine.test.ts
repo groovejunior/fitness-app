@@ -169,8 +169,12 @@ describe('week planning', () => {
     });
     const s = again.recommended.sessions;
     expect(s.find((x) => x.id === first.id)?.status).toBe('done');
-    expect(s.filter((x) => x.type === first.type)).toHaveLength(first.type === 'gym' ? 3 : first.type === 'run' ? 2 : 1);
-    for (const x of s) if (x.id !== first.id) expect(x.date >= addDays(MONDAY, 3)).toBe(true);
+    const rest = s.filter((x) => x.id !== first.id);
+    for (const x of rest) expect(x.date >= addDays(MONDAY, 3)).toBe(true);
+    // Four free days left (Thu–Sun): no cramming, one session a day at most.
+    expect(rest.length).toBeLessThanOrEqual(4);
+    expect(new Set(rest.map((x) => x.date)).size).toBe(rest.length);
+    expect(rest.some((x) => x.type === 'sport')).toBe(true);
   });
 
   it('chooses a split by sessions per week', () => {

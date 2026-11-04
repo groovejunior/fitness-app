@@ -212,6 +212,8 @@ export interface WeekPlan {
   sessions: PlannedSession[];
   warnings: WeekWarning[];
   variant: 'recommended' | 'alternative';
+  /** Short description of the other option, for the switch on the week screen. */
+  alternativeLabel?: string;
 }
 
 export interface WeekProposal {

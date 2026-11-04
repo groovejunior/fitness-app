@@ -276,7 +276,7 @@ function evaluate(placed: Placed[], avail: DayAvailability[], opts: { blocked?: 
     if (main.filter((p) => p.type === 'gym').length >= 2) out.push({ score: 150 });
     if (main.filter((p) => p.type === 'run').length >= 2) out.push({ score: 150 });
     if (main.length >= 2) {
-      out.push({ score: 45 + (main.filter(isHard).length >= 2 ? 40 : 0), message: `Two sessions on ${D[d]}.`, id: main[1].id });
+      out.push({ score: 90 + (main.filter(isHard).length >= 2 ? 40 : 0), message: `Two sessions on ${D[d]}.`, id: main[1].id });
       if (main.some(hardRun) && main.some((p) => legLoad(p) > 0)) out.push({ score: 50 });
     } else if (list.length >= 2) {
       out.push({ score: 3 });
@@ -569,6 +569,25 @@ export function planWeek(input: WeekInput): WeekProposal {
   // Fixed sport days that are already in the past are dropped, not moved.
   specs = specs.filter((s) => s.fixedDay === undefined || !blocked.has(s.fixedDay));
   const kept = keep.map((k) => toPlacedSession(k, input.weekStart));
+
+  // Starting mid-week: don't cram. Keep as many sessions as there are free days left
+  // (minus one rest day if the week still has room for it), dropping the least important.
+  if (blocked.size > 0) {
+    const freeLeft = input.availability.filter((a, i) => !blocked.has(i) && a.available && a.minutes >= MIN_SESSION_MIN).length;
+    const keptDays = new Set(kept.filter((k) => !blocked.has(k.day)).map((k) => k.day)).size;
+    const room = Math.max(0, freeLeft - keptDays);
+    const main = specs.filter((s) => s.type !== 'mobility');
+    if (main.length > room) {
+      const drop = new Set(
+        [...main]
+          .filter((s) => s.fixedDay === undefined)
+          .sort((a, b) => a.priority - b.priority || (a.key < b.key ? 1 : -1))
+          .slice(0, main.length - room)
+          .map((s) => s.key),
+      );
+      specs = specs.filter((s) => !drop.has(s.key));
+    }
+  }
 
   const assign = place(specs, kept, input.availability, blocked);
   const recommended = materialise(input, phase, specs, assign, 'recommended');

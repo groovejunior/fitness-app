@@ -49,7 +49,7 @@ export function ExerciseFigure({
   return (
     <svg
       ref={svgRef}
-      viewBox="0 0 100 100"
+      viewBox={clip.tall ? '-7 -14 114 114' : '0 0 100 100'}
       width={size}
       height={size}
       className={className}

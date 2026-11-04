@@ -40,22 +40,24 @@ export const dip: Clip = {
 // Standing with soft knees (keeps the lockout inside the frame).
 export const overheadPress: Clip = {
   id: 'overhead-press',
-  anchor: { joint: 'ankleNear', at: [44, 92] },
-  props: [{ kind: 'barbell', at: 'wristNear', offset: [0, 5] }],
+  tall: true,
+  anchor: { joint: 'ankleNear', at: [46, 92] },
+  props: [{ kind: 'barbell', at: 'wristNear', offset: [0, 1] }],
   keyframes: [
-    { pose: { torso: 180, armNear: [40, 180], legNear: [35, -35] }, hold: 400, move: 1000 },
-    { pose: { torso: 180, armNear: [176, 178], legNear: [35, -35] }, hold: 400, move: 1000 },
+    { pose: { torso: 180, armNear: [40, 180], legNear: [0, 0] }, hold: 400, move: 1000 },
+    { pose: { torso: 180, armNear: [176, 178], legNear: [0, 0] }, hold: 400, move: 1000 },
   ],
   still: 1,
 };
 
 export const dbShoulderPress: Clip = {
   id: 'db-shoulder-press',
-  anchor: { joint: 'ankleNear', at: [44, 92] },
+  tall: true,
+  anchor: { joint: 'ankleNear', at: [46, 92] },
   props: [{ kind: 'dumbbell', at: 'wristNear', offset: [0, 1.5] }],
   keyframes: [
-    { pose: { torso: 180, armNear: [40, 180], legNear: [35, -35] }, hold: 400, move: 1000 },
-    { pose: { torso: 180, armNear: [176, 178], legNear: [35, -35] }, hold: 400, move: 1000 },
+    { pose: { torso: 180, armNear: [40, 180], legNear: [0, 0] }, hold: 400, move: 1000 },
+    { pose: { torso: 180, armNear: [176, 178], legNear: [0, 0] }, hold: 400, move: 1000 },
   ],
   still: 1,
 };

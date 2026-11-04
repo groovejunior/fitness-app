@@ -62,7 +62,7 @@ export function FinishScreen({
   return (
     <div className="mx-auto w-full max-w-lg px-5 pt-safe pb-40">
       <div className="pt-8 pb-5">
-        <h1 className="font-display text-display font-bold">Nice work</h1>
+        <h1 className="font-display text-display font-bold">Workout done</h1>
         <p className="mt-1 text-body text-ink-2">A few details and it goes into your history.</p>
       </div>
 

@@ -18,7 +18,7 @@ describe('exercise animations', () => {
         for (const [name, [x, y]] of Object.entries(j)) {
           expect(x, `${id} #${i} ${name} x`).toBeGreaterThanOrEqual(2);
           expect(x, `${id} #${i} ${name} x`).toBeLessThanOrEqual(98);
-          expect(y, `${id} #${i} ${name} y`).toBeGreaterThanOrEqual(2);
+          expect(y, `${id} #${i} ${name} y`).toBeGreaterThanOrEqual(clip.tall ? -12 : 2);
           expect(y, `${id} #${i} ${name} y`).toBeLessThanOrEqual(GROUND_Y + 1.5);
         }
       });

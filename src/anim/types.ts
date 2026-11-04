@@ -78,6 +78,8 @@ export interface Clip {
   /** 'pingpong' plays 0..n then back; 'loop' plays 0..n then jumps back via keyframe n's move. Default pingpong. */
   loop?: 'pingpong' | 'loop';
   props?: Prop[];
+  /** Zoomed-out frame with extra headroom (viewBox -7 -14 114 114) for overhead moves. Joints may go up to y = -12. */
+  tall?: boolean;
   /** Keyframe index to show when not animating (thumbnails, reduced motion). Default: last keyframe. */
   still?: number;
 }

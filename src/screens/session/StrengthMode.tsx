@@ -201,7 +201,7 @@ export function StrengthMode({
                             onChange={(e) => edit(item, i, { w: e.target.value })}
                             className="w-full min-w-0 bg-transparent text-body font-semibold tabular outline-none"
                           />
-                          <span className="ml-1 text-caption text-ink-3">{weightLabel(units)}</span>
+                          <span aria-hidden="true" className="ml-1 text-caption text-ink-3">{weightLabel(units)}</span>
                         </div>
                       </label>
                     )}
@@ -215,7 +215,7 @@ export function StrengthMode({
                           onChange={(e) => edit(item, i, { r: e.target.value })}
                           className="w-full min-w-0 bg-transparent text-body font-semibold tabular outline-none"
                         />
-                        <span className="ml-1 text-caption text-ink-3">{unitText}</span>
+                        <span aria-hidden="true" className="ml-1 text-caption text-ink-3">{unitText}</span>
                       </div>
                     </label>
                   </div>

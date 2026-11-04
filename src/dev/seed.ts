@@ -1,5 +1,6 @@
 import { addDays, coach, mondayOf, type Profile, type WeekAvailability } from '../engine';
 import { db } from '../data/db';
+import { getExercise } from '../content/exercises';
 import { createBlock, ensureWeek, loadHistory, resetAll, saveProfile, saveSettings } from '../data/repo';
 import type { SessionRecord, SetRecord } from '../data/types';
 import { today } from '../lib/today';
@@ -63,7 +64,8 @@ export async function seedDemo(withHistory = true): Promise<void> {
         for (const sec of workout.sections) {
           if (sec.kind === 'warmup' || sec.kind === 'cooldown' || sec.kind === 'prep') continue;
           for (const it of sec.items) {
-            const kg = it.targetKg ?? (it.exerciseId === 'back-squat' ? 70 : it.exerciseId === 'bench-press' ? 55 : it.exerciseId === 'deadlift' ? 90 : it.exerciseId === 'overhead-press' ? 35 : null);
+            const start: Record<string, number> = { 'back-squat': 70, 'bench-press': 55, deadlift: 90, 'overhead-press': 35, 'romanian-deadlift': 60, 'goblet-squat': 24, 'db-row': 22 };
+            const kg = getExercise(it.exerciseId).loaded ? (it.targetKg ?? start[it.exerciseId] ?? 20) : null;
             for (let i = 0; i < it.sets; i++) {
               const reps = w === 0 ? it.repsMax - 1 : it.repsMax - (i === it.sets - 1 && w % 2 === 1 ? 1 : 0);
               sets.push({ sessionId: id, date, exerciseId: it.exerciseId, itemId: it.id, setIndex: i, weightKg: kg, reps, repsMin: it.repsMin, repsMax: it.repsMax, done: true });

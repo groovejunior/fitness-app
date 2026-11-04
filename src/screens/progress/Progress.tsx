@@ -127,7 +127,7 @@ export default function Progress() {
     const diff = Math.round((trend[trend.length - 1].value - trend[0].value) * 10) / 10;
     const wk = Math.max(1, Math.round((parseISODate(trend[trend.length - 1].date).getTime() - parseISODate(trend[0].date).getTime()) / (7 * 86_400_000)));
     const unitText = bodyweight ? (isHold ? 's' : Math.abs(diff) === 1 ? 'rep' : 'reps') : wl;
-    change = `${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)}${isHold && bodyweight ? '' : ' '}${unitText} in ${wk} ${wk === 1 ? 'week' : 'weeks'}`;
+    change = `${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)} ${unitText} in ${wk} ${wk === 1 ? 'week' : 'weeks'}`;
   }
   const chartName = sel?.ex.name ?? '';
   const chartLabel = bodyweight
@@ -210,6 +210,7 @@ export default function Progress() {
                   <LineChart
                     points={trend}
                     format={(n) => String(Math.round(n * 10) / 10)}
+                    integer={bodyweight}
                     label={chartLabel}
                   />
                 )}

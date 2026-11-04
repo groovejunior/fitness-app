@@ -120,7 +120,7 @@ export interface LinePoint {
   value: number;
 }
 
-export function LineChart({ points, label, format }: { points: LinePoint[]; label: string; format: (n: number) => string }) {
+export function LineChart({ points, label, format, integer = false }: { points: LinePoint[]; label: string; format: (n: number) => string; integer?: boolean }) {
   const w = 320;
   const h = 150;
   const l = 34;
@@ -138,7 +138,9 @@ export function LineChart({ points, label, format }: { points: LinePoint[]; labe
   const x = (d: string) => (t1 === t0 ? l + (w - l - r) / 2 : l + ((parseISODate(d).getTime() - t0) / (t1 - t0)) * (w - l - r));
   const y = (v: number) => t + (1 - (v - lo) / (hi - lo)) * (h - t - b);
   const path = points.map((p, i) => `${i ? 'L' : 'M'}${x(p.date).toFixed(1)} ${y(p.value).toFixed(1)}`).join(' ');
-  const ticks = [lo + pad, (lo + hi) / 2, hi - pad];
+  const rawTicks = [lo + pad, (lo + hi) / 2, hi - pad];
+  // Whole-number data (reps, seconds) gets whole-number gridlines only.
+  const ticks = integer ? [...new Set(rawTicks.map(Math.round))] : rawTicks;
   const first = points[0];
   const last = points[points.length - 1];
   const lastX = x(last.date);

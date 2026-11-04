@@ -3,7 +3,8 @@
 import { canDo, equipmentFor, fitsStyle, isCalisthenics, styleOf } from './equipment';
 import { hash, rotate } from './hash';
 import { EXERCISES } from './library';
-import { suggestLoad } from './progression';
+import { nextBodyweight, suggestLoad } from './progression';
+import type { SourceId } from './sources';
 import type {
   EquipmentContext,
   Exercise,
@@ -158,6 +159,27 @@ const SCHEMES: Record<PrimaryGoal, Scheme> = {
   health: { main: { min: 8, max: 10, rest: 90 }, acc: { min: 10, max: 12, rest: 60 } },
 };
 
+/**
+ * Rest between sets (Grgic 2017, Singer 2024).
+ * Beginners stay at or under 2 minutes. Past beginner, strength and athletic
+ * main lifts rest at least 2 minutes. Accessories have a 60s floor, except
+ * the short-rest superset alternative. Power stays near 90s. Core near 45s.
+ */
+function restSeconds(role: Slot['role'], schemeRest: number, exp: Experience, goal: PrimaryGoal, alt: boolean): number {
+  let rest: number;
+  if (role === 'power') rest = 90;
+  else if (role === 'core') rest = 45;
+  else if (role === 'main') {
+    if (exp === 'beginner') rest = Math.min(schemeRest, 120);
+    else if (goal === 'strength' || goal === 'athletic') rest = Math.max(schemeRest, 120);
+    else rest = schemeRest;
+  } else {
+    rest = Math.max(schemeRest, 60);
+  }
+  if (alt && (role === 'accessory' || role === 'core')) rest = Math.min(rest, 45);
+  return rest;
+}
+
 function baseSets(exp: Experience, role: Slot['role']): number {
   if (role === 'main') return exp === 'advanced' ? 4 : 3;
   if (role === 'power') return 3;
@@ -177,6 +199,8 @@ const LOWER: MovementPattern[] = ['squat', 'hinge'];
  * How well an exercise suits a slot in this context and training style (higher = preferred).
  * Calisthenics style: bodyweight moves lead everywhere except the big leg lifts, where a
  * classic barbell (or goblet squat for beginners) does the job bodyweight can't.
+ * Leg strength stays on a bar once a bodyweight squat is easy (Lopez 2021):
+ * size can come from any hard set, strength prefers a heavier load.
  */
 function equipmentScore(e: Exercise, ctx: EquipmentContext, exp: Experience, style: TrainingStyle = 'all', slot?: Slot): number {
   const eq = e.equipment;
@@ -331,6 +355,7 @@ export function generateStrength(input: StrengthInput, variant: 'recommended' | 
   const deload = phase === 'deload';
   const easy = input.intensity === 'easy';
   const budget = input.durationMin * 60;
+  let progressed = false;
 
   const warmSec = input.durationMin <= 30 ? 240 : 420;
   const coolSec = input.durationMin <= 30 ? 120 : 240;
@@ -344,46 +369,62 @@ export function generateStrength(input: StrengthInput, variant: 'recommended' | 
     return found ?? e;
   };
 
-  const makeItem = (slot: Slot, e: Exercise): StrengthItem => {
-    let sets = baseSets(exp, slot.role);
-    let target: RepTarget;
-    let restSec: number;
-    if (slot.role === 'power') {
-      target = { kind: 'reps', min: 3, max: 5 };
-      restSec = 75;
-    } else if (slot.role === 'core') {
-      target = e.load === 'timed' ? { kind: 'time', seconds: exp === 'beginner' ? 30 : 40 } : { kind: 'reps', min: 8, max: 12 };
-      restSec = 40;
-    } else {
-      const r = slot.role === 'main' ? scheme.main : scheme.acc;
-      target = e.load === 'timed' ? { kind: 'time', seconds: 40 } : { kind: 'reps', min: r.min, max: r.max };
-      restSec = r.rest;
-      if (e.load === 'bodyweight' && target.kind === 'reps') {
-        // Bodyweight: hard pulls and dips in a lower range, everything else higher.
-        const hard = (e.pattern === 'pull' && e.plane === 'vertical') || e.id.includes('dip') || e.difficulty === 3;
-        target =
-          slot.role === 'main'
-            ? hard
-              ? { kind: 'reps', min: 5, max: 8 }
-              : { kind: 'reps', min: 8, max: 12 }
-            : hard
-              ? { kind: 'reps', min: 6, max: 10 }
-              : { kind: 'reps', min: 10, max: 15 };
-      }
+  const repTarget = (slot: Slot, e: Exercise): RepTarget => {
+    if (slot.role === 'power') return { kind: 'reps', min: 3, max: 5 };
+    if (slot.role === 'core') {
+      return e.load === 'timed' ? { kind: 'time', seconds: exp === 'beginner' ? 30 : 40 } : { kind: 'reps', min: 8, max: 12 };
     }
-    if (alt && (slot.role === 'accessory' || slot.role === 'core')) restSec = Math.min(restSec, 45);
+    const r = slot.role === 'main' ? scheme.main : scheme.acc;
+    if (e.load === 'timed') return { kind: 'time', seconds: 40 };
+    if (e.load === 'bodyweight') {
+      // Hard pulls and dips stay in a lower range. Everything else goes higher.
+      const hard = (e.pattern === 'pull' && e.plane === 'vertical') || e.id.includes('dip') || e.difficulty === 3;
+      return slot.role === 'main'
+        ? hard
+          ? { kind: 'reps', min: 5, max: 8 }
+          : { kind: 'reps', min: 8, max: 12 }
+        : hard
+          ? { kind: 'reps', min: 6, max: 10 }
+          : { kind: 'reps', min: 10, max: 15 };
+    }
+    return { kind: 'reps', min: r.min, max: r.max };
+  };
+
+  const makeItem = (slot: Slot, start: Exercise): StrengthItem => {
+    let sets = baseSets(exp, slot.role);
+    let lift = start;
+    let target = repTarget(slot, lift);
+    const schemeRest = slot.role === 'main' ? scheme.main.rest : slot.role === 'accessory' ? scheme.acc.rest : 0;
+    let restSec = restSeconds(slot.role, schemeRest, exp, profile.goal, alt);
     if (phase === 'peak' && slot.role === 'main') sets += 1;
     if (deload) sets = Math.max(2, sets - 1);
     if (easy) sets = Math.max(2, sets - 1);
 
-    const sugg = suggestLoad(e, target, input.history, { phase, before: input.date });
+    let sugg = suggestLoad(lift, target, input.history, { phase, before: input.date });
+    if (sugg.readyForHarder) {
+      const available = equipmentFor(input.equipment, profile);
+      const style = styleOf(profile);
+      const harder = nextBodyweight(
+        lift.id,
+        (n) => canDo(n, available) && fitsStyle(n, style) && n.difficulty <= MAX_DIFFICULTY[exp] && !used.has(n.id),
+      );
+      if (harder) {
+        progressed = true;
+        used.add(harder.id);
+        const from = lift.name;
+        lift = harder;
+        target = repTarget(slot, lift);
+        sugg = suggestLoad(lift, target, input.history, { phase, before: input.date });
+        sugg = { ...sugg, reason: `You topped out ${from}. ${harder.name} is the harder version.` };
+      }
+    }
     return {
       kind: 'strength',
-      exerciseId: e.id,
+      exerciseId: lift.id,
       sets,
       target,
       restSec,
-      weightKg: e.load === 'weighted' ? sugg.weightKg : undefined,
+      weightKg: lift.load === 'weighted' ? sugg.weightKg : undefined,
       note: sugg.reason,
     };
   };
@@ -424,7 +465,7 @@ export function generateStrength(input: StrengthInput, variant: 'recommended' | 
   }
   if (spent + mainSec > budget) {
     // Still over: shorten rests on mains.
-    for (const m of mains) m.item.restSec = Math.min(m.item.restSec, 90);
+    for (const m of mains) m.item.restSec = Math.max(60, Math.min(m.item.restSec, 90));
     mainSec = mains.reduce((t, x) => t + itemSeconds(x.e, x.item), 0);
   }
 
@@ -520,10 +561,12 @@ export function generateStrength(input: StrengthInput, variant: 'recommended' | 
   const summary = alt
     ? 'Same muscles, different lifts. Accessories as supersets with short rests.'
     : deload
-      ? 'Deload: fewer sets and lighter loads. Move well, leave fresh.'
+      ? 'Lighter week: fewer sets, a bit less weight. This keeps the month from only going up.'
       : phase === 'peak'
         ? 'Peak week: an extra set on the main lifts.'
         : summaryFor(profile.goal, tpl.lower);
+
+  const source: SourceId = deload ? 'ioc-2016' : progressed ? 'kotarsky-2018' : 'currier-2023';
 
   return {
     sessionId: input.sessionId,
@@ -531,6 +574,7 @@ export function generateStrength(input: StrengthInput, variant: 'recommended' | 
     variant,
     title: alt ? `${title}, alternative` : title,
     summary,
+    source,
     durationMin: Math.max(15, Math.round(Math.min(spent, budget) / 60 / 5) * 5),
     equipment: input.equipment,
     intensity: deload || easy ? 'easy' : input.intensity,
@@ -541,11 +585,13 @@ export function generateStrength(input: StrengthInput, variant: 'recommended' | 
 function summaryFor(goal: PrimaryGoal, lower: boolean): string {
   switch (goal) {
     case 'strength':
-      return 'Heavy main lifts, long rests. Add weight when you hit the top of the range.';
+      return 'Heavy main lifts first, longer rests. Add a little weight when every set hits the top. Stop before form breaks.';
     case 'athletic':
-      return lower ? 'Jump first while fresh, then lift. Quality over quantity.' : 'Solid pressing and pulling, with good shoulder balance.';
+      return lower
+        ? 'Jump first while fresh, then the big lifts. Stop with a couple of reps still in you.'
+        : 'Big presses and pulls first. Stop before form breaks.';
     case 'endurance':
-      return 'Higher reps, shorter rests. Strength that supports your running.';
+      return 'Higher reps, short rests. Strength that supports your running. Stop before form breaks.';
     case 'health':
       return 'Full range, steady tempo. Leave a couple of reps in the tank.';
   }

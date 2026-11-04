@@ -7,15 +7,15 @@ Everything is stored on the phone itself. There's no account and no server. A ba
 ## What's in it
 
 - **Onboarding** (about 2 minutes): goal, sports, experience, free days, equipment, sessions per week. It ends with the first month plan.
-- **Plan, Month view**: the 4-week block (build, build, peak, deload), weekly targets, a realism check, and a recommended plan plus an alternative you can switch to with one tap.
-- **Plan, Week view**: your week fitted to your free days. You can change availability, pick a weekly focus (more legs, deload, sport week…), move sessions, switch to the lighter alternative and export the week to your calendar (`.ics`).
+- **Plan, Month view**: the 4-week block (build, build, peak, lighter), weekly targets, a realism check, and a recommended plan plus an alternative you can switch to with one tap.
+- **Plan, Week view**: your week fitted to your free days. You can change availability, pick a weekly focus (more legs, a lighter week, sport week…), move sessions, switch to the lighter alternative and export the week to your calendar (`.ics`).
 - **Bodyweight first**: by default workouts are built from calisthenics (pull-ups, dips, push-up variations, rows, single-leg work) plus a few classic barbell lifts for legs, never machines. Switch to "free weights" or "anything" in Settings.
 - **Today, "Today I'm doing this"**: change equipment (gym, home, bodyweight, outdoors), time and effort, and the workout rebuilds itself. There's always a recommended workout and an alternative. Any exercise can be swapped.
 - **Workout mode**: one exercise at a time, with a line-art animation and short cues. Tap to check off a set; weights are filled in from last time. A rest timer starts on its own. Runs get a big interval timer. The screen stays awake.
 - **Progress**: a calendar of done vs planned sessions, a streak, lift history with estimated 1-rep max, running distance and pace, and weekly sets per muscle group.
 - **Settings**: profile, units, theme (system / light / dark), backup export/import and reset.
 
-The training rules (progressive overload, 80/20 running, recovery spacing, deload weeks) live in `src/engine/`. That code is plain logic with no screen code in it, and it has unit tests. `docs/DECISIONS.md` explains the choices. The next step is to pin those rules to six open sources (Australian guidelines, a 2023 gym-dose review, the ACSM progression stand, Seiler on easy running, the Olympic load consensus, and a push-up progression study). The full list is `docs/TRAINING_KNOWLEDGE.md`.
+The training rules (progressive overload, mostly easy running, recovery spacing, a lighter fourth week) live in `src/engine/`. That code is plain logic with no screen code in it, and it has unit tests. Each workout names the source it is following, in one sentence. `docs/DECISIONS.md` explains the choices. The six open sources (Australian guidelines, a 2023 gym-dose review, the ACSM progression stand, Seiler on easy running, the Olympic load consensus, and a push-up progression study) are written up in `docs/TRAINING_KNOWLEDGE.md`.
 
 ## Run it on your computer
 

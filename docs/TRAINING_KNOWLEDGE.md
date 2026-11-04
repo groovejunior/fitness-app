@@ -42,18 +42,18 @@ These are real, and they are the wrong thing to hard-code.
 - **The acute:chronic workload ratio** (the "0.8 to 1.3" number in the IOC paper). It came from a few team sports and has not held up as a personal injury predictor. We keep the plain warning, not the ratio.
 - **A magic push/pull/squat/hinge ratio.** ACSM says cover the big movement patterns and do the hard compound lifts first. The templates in the app are how we do that. No paper says the counts must match.
 
-## What changes in the rules, once we encode this
+## What the rules do now
 
-Not done yet. One family at a time, with you able to see the diff:
+Encoded 5 Nov 2026. The templates were not reshuffled.
 
-1. **Gym dose.** Keep multiple sets. Point weekly frequency and "main lifts before accessories" at Currier 2023 and ACSM 2009. Muscle groups land about twice a week when the calendar allows.
-2. **Adding load.** Keep double progression. Cite ACSM's 2–10% step. Stop implying you must grind to failure.
-3. **Bodyweight.** When reps hit the top of the range, offer a harder variation (Kotarsky), not only "slow the lowering." Keep barbell squats and deadlifts as the leg strength lifts (Lopez).
-4. **Rest.** Beginners stay near 90 seconds. Past beginner, main strength lifts rest closer to 2 minutes.
-5. **Running.** Keep mostly easy, talk-test cues, one quality session for beginners. Soften the 10% copy. A second quality session only when there is enough easy running around it.
-6. **Week 4.** Keep it lighter, and say it is there to avoid a spike, not because a rest week grows more muscle.
-7. **Each rule gets a source id** the screen can show in one sentence. No bibliography on the workout card.
+1. **Gym dose.** Several sets. Main lifts stay before accessories. A 3-day full-body week touches push, pull, squat and hinge at least twice (Currier 2023). The workout line cites that paper.
+2. **Adding load.** Double progression stays. The plate jump is kept when it is about 2–10%, and a smaller jump is used when the usual one is bigger than that (ACSM 2009). If even the small jump is over 10%, the weight stays. The notes say to stop before form breaks.
+3. **Bodyweight.** When every set hits the top of the range, the next session uses a harder variation of the same pattern (Kotarsky 2018), if it is doable. Otherwise the note says to slow the lowering. Squat and hinge strength mains stay on a barbell (Lopez 2021).
+4. **Rest.** Beginners rest at or under 2 minutes. Past beginner, strength and athletic main lifts rest at least 2 minutes. Accessories rest at least 60 seconds, except the short-rest superset option (Grgic 2017, Singer 2024).
+5. **Running.** Mostly easy, talk-test cues, one quality session until there is enough easy running for a second. The weekly minute cap stays as a brake. The screen does not call 10% an injury law.
+6. **Week 4.** Still lighter (fewer sets, about 85% load). The copy says this keeps the month from only going up. It does not claim the week grows more muscle.
+7. **One sentence on the workout.** The screen shows a single line from the source id. No bibliography on the card.
 
 ## Status
 
-2026-11-05: research done, shortlist chosen, Settings lists it. The engine rules are still the original ones. Encoding is the next training-engine session.
+2026-11-05: the six sources are in Settings and in the engine. Each new workout carries a source id, and the workout screen shows one sentence.

@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import {
   commitSession, committedWorkout, restoreSession, skipSession, swapExercise, uncommitSession, updateSession, workoutOptions,
 } from '../db/repo';
+import { sourceLine } from '../engine';
 import type { StrengthItem, Workout, WorkoutOptions } from '../engine/types';
 import { dayAndDate, minutes } from '../lib/format';
 import { useProfile, useSession } from '../lib/hooks';
@@ -182,6 +183,11 @@ export function SessionDetail({ sessionId }: { sessionId: string }) {
     <DetailScreen footer={footer}>
       <div data-testid="session-detail">
         {header}
+        {selected?.source && (
+          <p data-testid="workout-why" className="-mt-3 mb-4 px-1 text-[14px] leading-snug text-muted">
+            {sourceLine(selected.source)}
+          </p>
+        )}
         {planned && <Controls session={s} />}
 
         {planned && options && (

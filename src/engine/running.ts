@@ -1,5 +1,6 @@
-// Running sessions. Effort-based (talk test), with pace hints once there is history.
-// Principles: about 80% easy, weekly volume grows ≤ ~10%, quality sessions by level.
+// Running sessions. Effort-based (talk test, Persinger/Foster 2004), with pace hints once there is history.
+// Most running stays easy enough to talk (Seiler 2009). One harder session until there is enough easy running for a second.
+// Weekly minutes rise gently, then the lighter week cuts them. That cap is a brake against a spike, not an injury law.
 import type {
   EquipmentContext,
   Experience,
@@ -11,6 +12,7 @@ import type {
   WeekPhase,
   Workout,
 } from './types';
+import type { SourceId } from './sources';
 
 export interface RunInput {
   sessionId: string;
@@ -229,7 +231,7 @@ function buildSteps(input: RunInput, kind: RunKind, alt: boolean): { steps: RunS
 
 export function generateRun(input: RunInput, variant: 'recommended' | 'alternative' = 'recommended'): Workout {
   const alt = variant === 'alternative';
-  // Deload: no quality, just easy + strides.
+  // Lighter week: no quality, just easy + strides, so the load does not jump.
   const kind: RunKind = input.phase === 'deload' && isQuality(input.kind) ? 'strides' : input.kind;
   const { steps, summary } = buildSteps(input, kind, alt);
   const treadmill = input.equipment === 'gym' || input.equipment === 'home';
@@ -254,6 +256,7 @@ export function generateRun(input: RunInput, variant: 'recommended' | 'alternati
     variant,
     title,
     summary: summary + (treadmill ? ' Set the incline to 1%.' : '') + paceLine,
+    source: (input.phase === 'deload' ? 'ioc-2016' : 'seiler-2009') satisfies SourceId,
     durationMin: Math.round(total / 60),
     equipment: input.equipment,
     intensity,

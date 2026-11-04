@@ -1,6 +1,9 @@
-// Progressive overload: double progression.
-// Work inside a rep range. When every working set hits the top of the range,
-// add load next time. Until then keep the load and add reps.
+// Progressive overload: double progression (ACSM 2009).
+// Work inside a rep range. When every working set hits the top, add load.
+// The step is about 2–10% (the usual plate jump when that sits inside the range).
+// Stop with reps in reserve. Grinding to failure is not the rule.
+// A harder bodyweight variation (Kotarsky 2018) is offered once every set tops out.
+import { findExercise } from './library';
 import type { Exercise, History, ISODate, RepTarget, SetLog, WeekPhase } from './types';
 
 export interface LoadSuggestion {
@@ -10,6 +13,38 @@ export interface LoadSuggestion {
   /** Plain explanation, e.g. "You hit 3×10 last time, so add 2.5 kg." */
   reason: string;
   last?: { date: ISODate; summary: string };
+  /** Every set hit the top of a bodyweight range, and this is not a lighter week. */
+  readyForHarder?: boolean;
+}
+
+/**
+ * Harder bodyweight variations of the same movement pattern.
+ * Loaded lifts are never the next step: a push-up does not become a bench press on its own.
+ * Split squat is a lunge, so a squat does not step into it.
+ */
+const HARDER_BODYWEIGHT: Record<string, readonly string[]> = {
+  'incline-pushup': ['pushup'],
+  pushup: ['decline-pushup', 'diamond-pushup'],
+  'decline-pushup': ['archer-pushup'],
+  'diamond-pushup': ['archer-pushup'],
+  'negative-pullup': ['pullup', 'chin-up'],
+  'inverted-row': ['wide-inverted-row'],
+  'bodyweight-squat': ['box-pistol-squat'],
+  'split-squat': ['bulgarian-split-squat'],
+  'glute-bridge': ['single-leg-glute-bridge'],
+  'bench-dip': ['dip'],
+};
+
+/** Next bodyweight variation the person can actually do, if one exists. */
+export function nextBodyweight(id: string, ok: (e: Exercise) => boolean): Exercise | undefined {
+  const current = findExercise(id);
+  if (!current || current.load !== 'bodyweight') return undefined;
+  for (const nextId of HARDER_BODYWEIGHT[id] ?? []) {
+    const e = findExercise(nextId);
+    if (!e || e.load !== 'bodyweight' || e.pattern !== current.pattern) continue;
+    if (ok(e)) return e;
+  }
+  return undefined;
 }
 
 /** Epley estimate of a one-rep max. */
@@ -19,17 +54,41 @@ export function e1rm(weightKg: number, reps: number): number {
   return weightKg * (1 + reps / 30);
 }
 
-export function increment(e: Exercise): number {
+/** Plate jumps, largest first. The largest one inside 2–10% is the step we take. */
+function jumps(e: Exercise): number[] {
   const lower = e.pattern === 'squat' || e.pattern === 'hinge' || e.pattern === 'lunge';
-  if (e.equipment.includes('barbell')) return lower ? 5 : 2.5;
-  if (e.equipment.includes('kettlebell')) return 4;
-  if (e.equipment.includes('dumbbell')) return 2;
-  return 2.5;
+  if (e.equipment.includes('barbell')) return lower ? [5, 2.5] : [2.5, 1.25];
+  if (e.equipment.includes('kettlebell')) return [4, 2];
+  if (e.equipment.includes('dumbbell')) return [2, 1];
+  return [2.5, 1.25];
 }
 
 function roundTo(e: Exercise, kg: number): number {
-  const step = e.equipment.includes('dumbbell') ? 1 : e.equipment.includes('kettlebell') ? 2 : 2.5;
-  return Math.max(step, Math.round(kg / step) * step);
+  const step = jumps(e).at(-1)!;
+  const units = Math.round(kg / step);
+  return Math.max(step, Math.round(units * step * 4) / 4);
+}
+
+function kgText(n: number): string {
+  const r = Math.round(n * 4) / 4;
+  return String(r);
+}
+
+/**
+ * Kilograms to add. Prefer the usual (largest) jump when it is inside 2–10%.
+ * If that jump is over 10%, take the largest smaller jump that still fits.
+ * If even the small jump is over 10%, add nothing.
+ * If one jump is under 2% (a very heavy bar), take that one jump anyway.
+ */
+function addedKg(e: Exercise, w: number): { kg: number; tooBig: boolean } {
+  const options = jumps(e);
+  const pct = (jump: number) => jump / w;
+  const fits = (jump: number) => pct(jump) >= 0.02 - 1e-9 && pct(jump) <= 0.1 + 1e-9;
+  const standard = options[0];
+  if (fits(standard) || pct(standard) < 0.02) return { kg: standard, tooBig: false };
+  const smaller = options.filter(fits);
+  if (smaller.length) return { kg: Math.max(...smaller), tooBig: false };
+  return { kg: 0, tooBig: true };
 }
 
 /** Sets of the most recent session in which this exercise was done. */
@@ -62,10 +121,10 @@ export function suggestLoad(
     if (e.load === 'weighted') {
       return {
         reps: target.kind === 'reps' ? target.max : undefined,
-        reason: 'First time: pick a weight you could lift 2–3 more reps with.',
+        reason: 'First time: pick a weight you could lift 2–3 more reps with. Stop before form breaks.',
       };
     }
-    return { reps: target.kind === 'reps' ? target.max : undefined, reason: 'First time: smooth, controlled reps.' };
+    return { reps: target.kind === 'reps' ? target.max : undefined, reason: 'First time: smooth, controlled reps. Stop before form breaks.' };
   }
 
   const lastInfo = { date: last[0].date, summary: summarise(last, e) };
@@ -75,18 +134,32 @@ export function suggestLoad(
   }
 
   if (e.load !== 'weighted') {
-    const best = Math.max(...last.map((s) => s.reps ?? 0));
+    const repsList = last.map((s) => s.reps ?? 0);
+    const best = Math.max(...repsList);
+    const allTop = repsList.length >= 2 && repsList.every((r) => r >= target.max);
     const reps = deload ? target.min : Math.min(best + 1, target.max);
-    const reason =
-      best >= target.max
-        ? 'You hit the top of the range. Slow the lowering to make it harder.'
-        : `Last best was ${best}. Aim for ${reps}.`;
-    return { reps, reason, last: lastInfo };
+    const reason = deload
+      ? 'Lighter week: fewer reps, smooth and easy.'
+      : allTop
+        ? 'You hit the top of the range. Slow the lowering. Stop before form breaks.'
+        : best >= target.max
+          ? `Last best was ${best}. Get every set there.`
+          : `Last best was ${best}. Aim for ${reps}.`;
+    return {
+      reps,
+      reason,
+      last: lastInfo,
+      ...(allTop && !deload ? { readyForHarder: true as const } : {}),
+    };
   }
 
   const weighted = last.filter((s) => (s.weightKg ?? 0) > 0);
   if (weighted.length === 0) {
-    return { reps: target.max, reason: 'Pick a weight you could lift 2–3 more reps with.', last: lastInfo };
+    return {
+      reps: target.max,
+      reason: 'Pick a weight you could lift 2–3 more reps with. Stop before form breaks.',
+      last: lastInfo,
+    };
   }
   const w = Math.max(...weighted.map((s) => s.weightKg!));
   const atW = weighted.filter((s) => s.weightKg === w);
@@ -97,9 +170,16 @@ export function suggestLoad(
   let reason: string;
   let reps: number;
   if (allTop) {
-    next = roundTo(e, w + increment(e));
-    reps = target.min;
-    reason = `You hit ${target.max} on every set. Add ${next - w} kg.`;
+    const add = addedKg(e, w);
+    if (add.tooBig) {
+      next = w;
+      reps = target.max;
+      reason = 'You hit the top of the range, but the next jump is too big. Same weight. Slow the lowering.';
+    } else {
+      next = roundTo(e, w + add.kg);
+      reps = target.min;
+      reason = `You hit ${target.max} on every set. Add ${kgText(next - w)} kg.`;
+    }
   } else if (mostlyShort) {
     next = roundTo(e, w * 0.9);
     reps = target.min;
@@ -107,13 +187,13 @@ export function suggestLoad(
   } else {
     const bestReps = Math.max(...atW.map((s) => s.reps ?? 0));
     reps = Math.min(bestReps + 1, target.max);
-    reason = `Same weight. Try for ${reps} reps.`;
+    reason = bestReps >= target.max ? `Same weight. Get every set to ${target.max}.` : `Same weight. Try for ${reps} reps.`;
   }
 
   if (deload) {
     next = roundTo(e, next * 0.85);
     reps = target.min;
-    reason = 'Deload week: lighter, smooth reps, leave plenty in the tank.';
+    reason = 'Lighter week: a bit less weight, so the month does not only go up.';
   }
 
   return { weightKg: next, reps, reason, last: lastInfo };

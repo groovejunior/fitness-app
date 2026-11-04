@@ -31,7 +31,7 @@ export const MAX_HARD: Record<Experience, number> = { beginner: 4, intermediate:
 export const MIN_SESSION_MIN = 20;
 
 export function qualityRunsPerWeek(runExp: Experience, runs: number): number {
-  // Two quality sessions only with enough easy running around them (80/20).
+  // A second harder session only once there is enough easy running around it.
   if (runs <= 1) return 0;
   if (runExp === 'beginner' || runs <= 3) return 1;
   return 2;
@@ -51,7 +51,7 @@ export function baseRunMinutes(profile: Pick<Profile, 'experience'>, runs: numbe
   const fromLevel = runs * perRun[profile.experience.run];
   if (recent.length >= 2) {
     const weekly = recent.reduce((t, s) => t + s.durationMin, 0) / 2;
-    // Don't jump from history: at most +10%, and not below a sensible floor.
+    // Don't jump off recent history. About 10% more is the ceiling: a brake, not an injury rule.
     return Math.round(Math.max(runs * 20, Math.min(weekly * 1.1, fromLevel * 1.5)));
   }
   return fromLevel;

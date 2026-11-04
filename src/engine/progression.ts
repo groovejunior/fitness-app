@@ -1,3 +1,4 @@
+import { EXERCISE_BY_ID } from '../content/exercises';
 import type { Exercise, ExercisePerformance, History, Phase } from './types';
 
 /** Epley estimated one-rep max. */
@@ -26,6 +27,8 @@ export interface LoadSuggestion {
   note: string;
   /** For bodyweight work: the rep target to aim for. */
   aimReps?: number;
+  /** Bodyweight work at the top of its range: id of the harder variation to move to. */
+  harder?: string;
 }
 
 function topWeight(p: ExercisePerformance): number | null {
@@ -52,7 +55,12 @@ export function suggestLoad(ex: Exercise, repsMin: number, repsMax: number, hist
   if (!ex.loaded) {
     if (!last) return { kg: null, note: '' };
     const best = Math.max(...last.sets.filter((s) => s.done).map((s) => s.reps));
-    if (hitTop(last, null)) return { kg: null, note: `You hit ${best} last time. Slow the lowering to make it harder.`, aimReps: repsMax };
+    if (hitTop(last, null)) {
+      const next = ex.harder ? EXERCISE_BY_ID[ex.harder] : undefined;
+      return next
+        ? { kg: null, note: `You hit ${best} on every set last time. Ready for ${next.name.toLowerCase()}: swap to it.`, aimReps: repsMax, harder: next.id }
+        : { kg: null, note: `You hit ${best} last time. Slow the lowering to make it harder.`, aimReps: repsMax };
+    }
     return { kg: null, note: `Last time: best set ${best}. Beat it by one.`, aimReps: Math.min(repsMax, best + 1) };
   }
   if (!last) return { kg: null, note: 'First time: pick a weight you could lift 2–3 more times.' };

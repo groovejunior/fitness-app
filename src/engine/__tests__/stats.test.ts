@@ -82,3 +82,18 @@ describe('calendar export', () => {
     expect(ics).toContain('Squat\\, press');
   });
 });
+
+describe('bodyweight trend', () => {
+  it('tracks best reps per day', async () => {
+    const { repsTrend } = await import('../stats');
+    const t = repsTrend(
+      [
+        { sessionId: 'a', date: '2026-10-01', exerciseId: 'pull-up', weightKg: null, reps: 5, done: true },
+        { sessionId: 'a', date: '2026-10-01', exerciseId: 'pull-up', weightKg: null, reps: 7, done: true },
+        { sessionId: 'b', date: '2026-10-08', exerciseId: 'pull-up', weightKg: null, reps: 8, done: true },
+      ],
+      'pull-up',
+    );
+    expect(t).toEqual([{ date: '2026-10-01', reps: 7 }, { date: '2026-10-08', reps: 8 }]);
+  });
+});

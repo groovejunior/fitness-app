@@ -44,3 +44,6 @@ Carlo asked for calisthenics plus a few classic lifts and no machines (recorded 
 - If nothing in a slot fits the style, the engine first tries the slot's fallbacks (e.g. carry → core) and only then relaxes the style.
 - Bodyweight progression is reps-based: 5–8 for pull-ups, dips and pike push-ups (3–8 for beginners), 8–12 for other main moves, 10–15 for accessories.
 - Swap lists show moves that fit the style first; the others stay available below.
+
+## Two parallel build sessions merged into one (4 Nov 2026)
+A second cloud session built its own v1 in parallel (branch `claude/upbeat-hopper-k4123t`, a separate codebase). Carlo asked to stop it and continue here. That branch stays on GitHub for reference and is not merged: its code can't be combined with this one line by line. What it added beyond this build was ported by hand: the bodyweight-first training style, its 15 extra calisthenics exercises (re-drawn in this build's animation style), and tracking bodyweight lifts by reps in Progress. This build additionally suggests the next harder variation (`Exercise.harder`) once all sets reach the top of the rep range.

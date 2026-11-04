@@ -26,6 +26,11 @@ Honest list of what is not done, not tested, or only approximately right. Newest
 - Starting weights: with no history the app does not guess a number; it says "pick a weight you could lift 2–3 more times". The first logged session sets the baseline.
 - Rep ranges, rest times and the weekly "load points" budget are sensible defaults, not tuned to Carlo yet.
 
+## Training style
+- "Bodyweight first" keeps barbell squats and deadlifts as the leg main lifts. If Carlo wants legs fully bodyweight, pick the Bodyweight equipment for that session (or we add a stricter style).
+- Weighted calisthenics (weighted pull-ups or dips) is not modelled yet.
+- The harder-variation suggestion ("Ready for archer push-ups") is a note on the exercise; it doesn't swap automatically.
+
 ## Animations that are only approximate
 All 42 exercises have an animation in the same style; these read less well than the rest:
 - **Side plank**, **open book**: lying on the side is hard to show in a side-view stick figure; stylised.

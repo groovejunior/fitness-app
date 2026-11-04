@@ -148,3 +148,13 @@ export function weeklyMuscleVolume(sets: SetLike[], weekStart: string): Record<M
   }
   return out;
 }
+
+/** Best reps in one set per session date for a bodyweight exercise, oldest first. */
+export function repsTrend(sets: SetLike[], exerciseId: string): Array<{ date: string; reps: number }> {
+  const by = new Map<string, number>();
+  for (const s of sets) {
+    if (s.exerciseId !== exerciseId || !s.done || s.reps <= 0) continue;
+    by.set(s.date, Math.max(by.get(s.date) ?? 0, s.reps));
+  }
+  return [...by.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([date, reps]) => ({ date, reps }));
+}

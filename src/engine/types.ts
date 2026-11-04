@@ -83,6 +83,8 @@ export interface Exercise {
   animation: string;
   /** Ids of exercises with the same slot that make good swaps. */
   substitutions: string[];
+  /** Harder bodyweight variation to move on to once the top of the rep range is easy (progression ladder). */
+  harder?: string;
   /** A simple classic free-weight lift. The bodyweight-first style allows these, but no other loaded exercises. */
   classic?: boolean;
 }

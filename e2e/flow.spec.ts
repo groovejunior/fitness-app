@@ -88,8 +88,9 @@ test('onboarding to month, week, gym workout, progress', async ({ page }) => {
 
   // ---- 5. Complete it ----
   const logged: string[] = [];
-  const markDone = page.getByRole('button', { name: /^Mark set \d+ done$/ });
   for (let ex = 0; ex < 2 || logged.length === 0; ex++) {
+    // wait for the screen to be on exercise ex+1 (the counter reads "N of M")
+    await expect(page.getByRole('heading', { name: new RegExp(`^${ex + 1} of \\d+$`) })).toBeVisible();
     const name = (await page.getByRole('heading', { level: 1 }).filter({ hasNotText: /^\d+ of \d+$/ }).textContent())!.trim();
     // Log a weight where the exercise takes one
     const weights = page.getByLabel(/^Weight for set \d+$/);
@@ -98,8 +99,10 @@ test('onboarding to month, week, gym workout, progress', async ({ page }) => {
       for (let i = 0; i < (await weights.count()); i++) await weights.nth(i).fill('40');
     }
     // Mark every set done; skip the rest timer after each
-    while ((await markDone.count()) > 0) {
-      await markDone.first().click();
+    const nSets = await page.getByRole('list', { name: 'Sets' }).getByRole('listitem').count();
+    for (let n = 1; n <= nSets; n++) {
+      await page.getByRole('button', { name: `Mark set ${n} done` }).click();
+      await expect(page.getByRole('button', { name: `Mark set ${n} not done` })).toBeVisible();
       // Warm-up moves have no rest, so the timer only shows for the others
       const skip = page.getByRole('button', { name: 'Skip rest' });
       if (await skip.isVisible()) {

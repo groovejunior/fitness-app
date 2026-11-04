@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Empty, Loading } from '../../components/Empty';
 import { getExercise } from '../../content/exercises';
-import { addDays, adherence, doneByDay, e1rmTrend, mondayOf, parseISODate, personalRecords, runWeeks, weekStreak, weeklyMuscleVolume, type Muscle } from '../../engine';
+import { addDays, adherence, doneByDay, e1rmTrend, mondayOf, parseISODate, personalRecords, repsTrend, runWeeks, weekStreak, weeklyMuscleVolume, type Muscle } from '../../engine';
 import { useAllSessions, useAllSets, useAllWeeks, useSettings } from '../../data/hooks';
 import { distanceLabel, formatDate, formatPace, toDisplayDistance, toDisplayWeight, weightLabel } from '../../lib/format';
 import { today } from '../../lib/today';
@@ -56,15 +56,21 @@ export default function Progress() {
   const thisMonday = mondayOf(t);
 
   const strengthList = useMemo(() => {
-    const by = new Map<string, Set<string>>();
+    // Weighted exercises count sessions with a loaded set; bodyweight ones count any session with reps.
+    const loaded = new Map<string, Set<string>>();
+    const unloaded = new Map<string, Set<string>>();
     for (const s of sets ?? []) {
-      if (!s.done || !s.weightKg || s.reps <= 0) continue;
-      if (!by.has(s.exerciseId)) by.set(s.exerciseId, new Set());
-      by.get(s.exerciseId)!.add(s.date);
+      if (!s.done || s.reps <= 0) continue;
+      const slot = getExercise(s.exerciseId).slot;
+      if (slot === 'warmup' || slot === 'mobility') continue;
+      const m = s.weightKg ? loaded : unloaded;
+      if (!m.has(s.exerciseId)) m.set(s.exerciseId, new Set());
+      m.get(s.exerciseId)!.add(s.date);
     }
-    return [...by.entries()]
-      .map(([id, d]) => ({ id, n: d.size, ex: getExercise(id) }))
-      .sort((a, b) => b.n - a.n || a.ex.name.localeCompare(b.ex.name));
+    const out: Array<{ id: string; n: number; ex: ReturnType<typeof getExercise>; weighted: boolean }> = [];
+    for (const [id, d] of loaded) out.push({ id, n: d.size, ex: getExercise(id), weighted: true });
+    for (const [id, d] of unloaded) if (!loaded.has(id)) out.push({ id, n: d.size, ex: getExercise(id), weighted: false });
+    return out.sort((a, b) => b.n - a.n || a.ex.name.localeCompare(b.ex.name));
   }, [sets]);
 
   if (!sessions || !sets || !weeks) return <Loading />;
@@ -105,16 +111,28 @@ export default function Progress() {
     .slice(-8);
 
   /* strength */
-  const defaultLift = (strengthList.find((e) => e.ex.compound) ?? strengthList[0])?.id;
-  const selected = picked && strengthList.some((e) => e.id === picked) ? picked : defaultLift;
-  const trend = selected ? e1rmTrend(sets, selected).map((p) => ({ date: p.date, value: dw(p.e1rm) })) : [];
+  const selected = picked && strengthList.some((e) => e.id === picked) ? picked : strengthList[0]?.id;
+  const sel = strengthList.find((e) => e.id === selected);
+  const bodyweight = !!sel && !sel.weighted;
+  const isHold = !!sel && (sel.ex.unit === 'sec' || sel.ex.unit === 'secPerSide');
+  const repUnit = isHold ? 's' : 'reps';
+  const trend = !sel
+    ? []
+    : bodyweight
+      ? repsTrend(sets, sel.id).map((p) => ({ date: p.date, value: p.reps }))
+      : e1rmTrend(sets, sel.id).map((p) => ({ date: p.date, value: dw(p.e1rm) }));
   let change = '';
   if (trend.length === 1) change = 'One session so far.';
   else if (trend.length > 1) {
     const diff = Math.round((trend[trend.length - 1].value - trend[0].value) * 10) / 10;
     const wk = Math.max(1, Math.round((parseISODate(trend[trend.length - 1].date).getTime() - parseISODate(trend[0].date).getTime()) / (7 * 86_400_000)));
-    change = `${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)} ${wl} in ${wk} ${wk === 1 ? 'week' : 'weeks'}`;
+    const unitText = bodyweight ? (isHold ? 's' : Math.abs(diff) === 1 ? 'rep' : 'reps') : wl;
+    change = `${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)}${isHold && bodyweight ? '' : ' '}${unitText} in ${wk} ${wk === 1 ? 'week' : 'weeks'}`;
   }
+  const chartName = sel?.ex.name ?? '';
+  const chartLabel = bodyweight
+    ? `${isHold ? 'Longest hold' : 'Best reps in a set'} for ${chartName}${trend.length ? `, from ${trend[0].value} to ${trend[trend.length - 1].value} ${repUnit}` : ''}. ${change}`
+    : `Estimated one-rep max for ${chartName}${trend.length ? `, from ${trend[0].value} to ${trend[trend.length - 1].value} ${wl}` : ''}. ${change}`;
   const prs = personalRecords(sets).slice(0, 6);
 
   /* running */
@@ -173,7 +191,7 @@ export default function Progress() {
 
         <Section title="Strength">
           {strengthList.length === 0 ? (
-            <EmptyLine>Finish a workout with weights and it shows up here.</EmptyLine>
+            <EmptyLine>Finish a workout and your lifts show up here.</EmptyLine>
           ) : (
             <>
               <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-3">
@@ -185,17 +203,23 @@ export default function Progress() {
               </div>
               <Card className="px-4 py-4">
                 <div className="mb-2 flex items-baseline justify-between gap-3">
-                  <p className="truncate text-caption font-semibold">{selected ? getExercise(selected).name : ''}</p>
+                  <p className="truncate text-caption font-semibold">{chartName}</p>
                   <p className="shrink-0 text-caption font-semibold tabular text-accent">{change}</p>
                 </div>
                 {trend.length > 0 && (
                   <LineChart
                     points={trend}
                     format={(n) => String(Math.round(n * 10) / 10)}
-                    label={`Estimated one-rep max for ${selected ? getExercise(selected).name : ''}, from ${trend[0].value} to ${trend[trend.length - 1].value} ${wl}. ${change}`}
+                    label={chartLabel}
                   />
                 )}
-                <p className="pt-2 text-caption text-ink-3">Estimated one-rep max in {wl}, from your best set.</p>
+                <p className="pt-2 text-caption text-ink-3">
+                  {bodyweight
+                    ? isHold
+                      ? 'Longest hold, in seconds.'
+                      : 'Best set, in reps.'
+                    : `Estimated one-rep max in ${wl}, from your best set.`}
+                </p>
               </Card>
 
               <SectionLabel className="mt-6">Personal records</SectionLabel>
@@ -208,7 +232,7 @@ export default function Progress() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-body font-medium">{ex.name}</p>
                         <p className="truncate text-caption text-ink-2 tabular">
-                          {weighted ? `Heaviest ${dw(p.heaviestKg)} ${wl} × ${p.heaviestReps}` : (ex.unit === 'sec' || ex.unit === 'secPerSide' ? `Longest hold ${p.mostReps} s` : `Most reps ${p.mostReps}`)} · {formatDate(p.date)}
+                          {weighted ? `Heaviest ${dw(p.heaviestKg)} ${wl} × ${p.heaviestReps}` : (ex.unit === 'sec' || ex.unit === 'secPerSide' ? `Longest hold ${p.mostReps} s` : `Best set ${p.mostReps} reps`)} · {formatDate(p.date)}
                         </p>
                       </div>
                       {weighted && (

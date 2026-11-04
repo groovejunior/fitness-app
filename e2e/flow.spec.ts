@@ -93,7 +93,7 @@ test('onboarding to month, week, gym workout, progress', async ({ page }) => {
     await expect(page.getByRole('heading', { name: new RegExp(`^${ex + 1} of \\d+$`) })).toBeVisible();
     const name = (await page.getByRole('heading', { level: 1 }).filter({ hasNotText: /^\d+ of \d+$/ }).textContent())!.trim();
     // Log a weight where the exercise takes one
-    const weights = page.getByLabel(/^Weight for set \d+$/);
+    const weights = page.getByLabel(/^Weight for set \d+/) // label text also contains the unit ("kg"), so no end anchor;
     const weighted = (await weights.count()) > 0;
     if (weighted) {
       for (let i = 0; i < (await weights.count()); i++) await weights.nth(i).fill('40');

@@ -167,6 +167,12 @@ export interface PlannedSlot {
   variant?: number;
   runKind?: RunKind;
   sportId?: string;
+  /** Run only: seconds of hard running this session may use (keeps the week near 80/20). */
+  hardSec?: number;
+  /** Run only: add strides at the end of an easy run. */
+  strides?: boolean;
+  /** The user moved this slot by hand; re-planning keeps it on its day. */
+  pinned?: boolean;
 }
 
 export interface WeekWarning {

@@ -286,6 +286,11 @@ interface Scored {
 
 const dayName = (d: number) => DAY_LONG[d];
 
+/** "Full body A" -> "full body A": lowercase only the first letter. */
+export function lcFirst(s: string): string {
+  return s.charAt(0).toLowerCase() + s.slice(1);
+}
+
 function sameMuscles(a: PlannedSlot, b: PlannedSlot): boolean {
   if (a.type !== 'gym' || b.type !== 'gym') return false;
   const groups = (g: GymDay | undefined): string[] => {
@@ -332,7 +337,7 @@ export function scoreWeek(slots: PlannedSlot[], availability: WeekAvailability, 
     }
     if (av.minutes < MIN_MINUTES[s.type]) {
       penalty += 20;
-      warnings.push({ code: 'tooLong', message: `${dayName(s.day)} has ${av.minutes} min. Too short for ${s.title.toLowerCase()}.`, days: [s.day] });
+      warnings.push({ code: 'tooLong', message: `${dayName(s.day)} has ${av.minutes} min. Too short for ${lcFirst(s.title)}.`, days: [s.day] });
     } else if (s.minutes > av.minutes) {
       penalty += ((s.minutes - av.minutes) / 5) * (s.runKind === 'long' ? 2 : 1);
     }
@@ -353,7 +358,7 @@ export function scoreWeek(slots: PlannedSlot[], availability: WeekAvailability, 
       for (const b of tomorrow) {
         if (isHeavyLegs(a) && isHardRun(b)) {
           penalty += 10;
-          warnings.push({ code: 'legsBeforeHardRun', message: `${a.title} on ${dayName(d)} is the day before your ${b.title.toLowerCase()}. Tired legs make for a bad run.`, days: [d as DayIndex, (d + 1) as DayIndex] });
+          warnings.push({ code: 'legsBeforeHardRun', message: `${a.title} on ${dayName(d)} is the day before your ${lcFirst(b.title)}. Tired legs make for a bad run.`, days: [d as DayIndex, (d + 1) as DayIndex] });
         } else if (isHardRun(a) && isHeavyLegs(b)) {
           penalty += 4;
         }
@@ -363,7 +368,7 @@ export function scoreWeek(slots: PlannedSlot[], availability: WeekAvailability, 
         }
         if (isLegHeavySport(a) && isHeavyLegs(b)) {
           penalty += 4;
-          warnings.push({ code: 'sportBeforeLegs', message: `${a.title} on ${dayName(d)}, then ${b.title.toLowerCase()} the next day. Your legs will still be tired.`, days: [d as DayIndex, (d + 1) as DayIndex] });
+          warnings.push({ code: 'sportBeforeLegs', message: `${a.title} on ${dayName(d)}, then ${lcFirst(b.title)} the next day. Your legs will still be tired.`, days: [d as DayIndex, (d + 1) as DayIndex] });
         } else if (isHeavyLegs(a) && isLegHeavySport(b)) {
           penalty += 3;
         } else if (isLegHeavySport(a) && isHardRun(b)) {
@@ -371,7 +376,7 @@ export function scoreWeek(slots: PlannedSlot[], availability: WeekAvailability, 
         }
         if (isHardRun(a) && isHardRun(b)) {
           penalty += 6;
-          warnings.push({ code: 'hardBackToBack', message: `${a.title} and ${b.title.toLowerCase()} on back-to-back days. Space your hard runs out.`, days: [d as DayIndex, (d + 1) as DayIndex] });
+          warnings.push({ code: 'hardBackToBack', message: `${a.title} and ${lcFirst(b.title)} on back-to-back days. Space your hard runs out.`, days: [d as DayIndex, (d + 1) as DayIndex] });
         }
         if (a.load === 'hard' && b.load === 'hard') penalty += 2;
       }
@@ -505,7 +510,7 @@ export function layoutWeek(all: PlannedSlot[], availability: WeekAvailability, p
   const b = best as unknown as Layout;
   if (dropped.length) {
     b.warnings = [
-      { code: 'droppedSessions', message: `Not enough free days for everything. Left out: ${dropped.map((s) => s.title.toLowerCase()).join(', ')}.`, days: [] },
+      { code: 'droppedSessions', message: `Not enough free days for everything. Left out: ${dropped.map((s) => lcFirst(s.title)).join(', ')}.`, days: [] },
       ...b.warnings,
     ];
   }
@@ -581,7 +586,7 @@ export function planWeek(input: WeekInput): WeekPlanResult {
       warnings: lay.warnings,
       chosen: 'alternative',
       label: 'Lighter week',
-      why: `Drops the ${removed?.title.toLowerCase() ?? 'least important session'}. More recovery for a busy week.`,
+      why: `Drops the ${removed ? lcFirst(removed.title) : 'least important session'}. More recovery for a busy week.`,
     };
   } else if (second) {
     const s2 = second as Layout;

@@ -12,7 +12,24 @@ export interface RunResult {
 }
 
 /** Interval timer. Time comes from timestamps, so it stays right when the screen sleeps. */
-export function RunMode({ run, title, onFinish, onBack }: { run: RunPlan; title: string; onFinish: (r: RunResult) => void; onBack: () => void }) {
+interface Saved {
+  banked: number;
+  segStart: number | null;
+  skipped: number;
+  started: boolean;
+}
+
+function load(key?: string): Saved | null {
+  if (!key) return null;
+  try {
+    const v = JSON.parse(localStorage.getItem(key) ?? 'null');
+    return v && typeof v.banked === 'number' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export function RunMode({ run, title, onFinish, onBack, storageKey }: { run: RunPlan; title: string; onFinish: (r: RunResult) => void; onBack: () => void; storageKey?: string }) {
   const steps = run.steps;
   const bounds = useMemo(() => {
     let acc = 0;
@@ -21,11 +38,21 @@ export function RunMode({ run, title, onFinish, onBack }: { run: RunPlan; title:
   const total = bounds[bounds.length - 1] ?? 0;
 
   // elapsed = banked + (running ? now - segStart : 0) + skipped
-  const [banked, setBanked] = useState(0);
-  const [segStart, setSegStart] = useState<number | null>(null);
-  const [skipped, setSkipped] = useState(0);
+  // Restored from localStorage so a reload or app switch mid-run keeps the position.
+  const [saved] = useState(() => load(storageKey));
+  const [banked, setBanked] = useState(saved?.banked ?? 0);
+  const [segStart, setSegStart] = useState<number | null>(saved?.segStart ?? null);
+  const [skipped, setSkipped] = useState(saved?.skipped ?? 0);
   const [now, setNow] = useState(Date.now());
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(saved?.started ?? false);
+  useEffect(() => {
+    if (!storageKey) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({ banked, segStart, skipped, started }));
+    } catch {
+      /* storage unavailable */
+    }
+  }, [storageKey, banked, segStart, skipped, started]);
 
   useEffect(() => {
     if (segStart === null) return;

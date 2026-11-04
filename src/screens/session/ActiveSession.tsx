@@ -98,6 +98,7 @@ export default function ActiveSession() {
       <RunMode
         run={workout.run!}
         title={workout.title}
+        storageKey={`fitness.run.${session.id}`}
         onBack={() => nav(-1)}
         onFinish={(r) => {
           setRunResult(r);

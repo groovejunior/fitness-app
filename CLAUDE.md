@@ -20,7 +20,10 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - No AI-sounding UI copy. Short, plain, human sentences.
 
 ## 3. Current status
-- 2026-11-04: Repo created with spec. First full build running as a cloud session.
+- 2026-11-04: v1 built on branch `claude/upbeat-hopper-k4123t` (PR open, not merged, nothing deployed). All screens from SPEC §5 exist: onboarding, Today, Plan (month + week), workout detail, workout mode (sets, rest timer, run interval timer), finish, Progress, Settings. Rule engine in `src/engine/` with 76 unit tests; Playwright e2e journey passes; screenshots in `docs/screenshots/`.
+- Exercise library: 89 exercises, each with a line-art animation on one shared stick-figure rig (`src/animations/rig.ts`).
+- Training style defaults to **bodyweight first** (Carlo's wish: calisthenics + a few classic lifts, no machines); changeable in Settings.
+- Not tested on a real iPhone yet; see `docs/KNOWN_ISSUES.md`.
 
 ## 4. Open questions for Carlo (later)
 - Hosting (Vercel?) and whether to add cloud sync.
@@ -29,3 +32,5 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 
 ## 5. Session log
 - 2026-11-04: Spec written from Carlo's brief; decisions agreed (PWA, local storage, rule engine, custom animations). Private repo created; cloud build session launched.
+- 2026-11-04: First full build of v1 (engine, library + animations, all screens, tests, docs, screenshots).
+- 2026-11-04: Carlo: "not a fan of machines, mainly bodyweight/calisthenics and a few simple classic exercises" → added training style (bodyweight first by default), 16 calisthenics moves, Progress tracks bodyweight lifts by reps.

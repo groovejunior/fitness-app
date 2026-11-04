@@ -1,0 +1,191 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Design tokens. One accent colour; everything else is neutral. */
+:root {
+  --bg: #f6f6f3;
+  --surface: #ffffff;
+  --surface-2: #efefeb;
+  --ink: #151716;
+  --ink-2: #4a4f4c;
+  --muted: #7a807c;
+  --line: #e4e5e0;
+  --accent: #1f7a63;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2f0eb;
+  --warn: #a8620f;
+  --warn-soft: #f8ecdc;
+  --shadow: 0 1px 2px rgb(20 24 22 / 0.04), 0 8px 24px -12px rgb(20 24 22 / 0.12);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #0f1110;
+  --surface: #181b19;
+  --surface-2: #212522;
+  --ink: #eceeeb;
+  --ink-2: #b8bdb9;
+  --muted: #8a908c;
+  --line: #2a2e2b;
+  --accent: #5cc6a4;
+  --accent-ink: #0b1f19;
+  --accent-soft: #1a2f28;
+  --warn: #e3a556;
+  --warn-soft: #2e2416;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+  color-scheme: dark;
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --shadow-soft: var(--shadow);
+  --radius-card: 1.25rem;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+button {
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.safe-top {
+  padding-top: max(env(safe-area-inset-top), 0.75rem);
+}
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+}
+
+/* Line-art figures */
+.figure {
+  width: 100%;
+  height: 100%;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+.figure .fig-near line,
+.figure .fig-near circle {
+  stroke: var(--ink);
+}
+.figure .fig-far line {
+  stroke: var(--ink);
+  opacity: 0.32;
+}
+.figure .fig-ground {
+  stroke: var(--line);
+  stroke-width: 1.2;
+}
+.figure .fig-mat {
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  opacity: 0.45;
+}
+.figure .fig-static,
+.figure .fig-static line {
+  stroke: var(--muted);
+  stroke-width: 1.8;
+  fill: none;
+}
+.figure .fig-prop {
+  stroke: var(--accent);
+  stroke-width: 2.2;
+  fill: none;
+}
+.figure .fig-prop-fill {
+  fill: var(--accent);
+  stroke: none;
+}
+.figure .fig-cable {
+  stroke: var(--muted);
+  stroke-width: 0.9;
+}
+.figure .fig-band {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 2 1.6;
+}
+
+/* Motion */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+.sheet-up {
+  animation: sheet-up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-in {
+  animation: fade-in 0.2s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .sheet-up,
+  .fade-in {
+    animation: none;
+  }
+}
+
+/* Range input in accent colour */
+input[type='range'] {
+  accent-color: var(--accent);
+}

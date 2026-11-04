@@ -23,8 +23,8 @@ export const BASE_ANIMATIONS: Record<string, AnimationDef> = {
   // Push-up: body in a straight line, chest lowers between the hands.
   'pushup': {
     keyframes: [
-      { hip: [44, 72], torso: 76, armN: [4, 0], armF: [0, 0], legN: [-76, 0], legF: [-78, 0] },
-      { hip: [44, 80], torso: 84, armN: [-42, 80], armF: [-46, 84], legN: [-84, 0], legF: [-86, 0] },
+      { hip: [44, 72], torso: 65, armN: [0, 0], armF: [-2, 0], legN: [-65, 0], legF: [-66, 0] },
+      { hip: [44, 80], torso: 82, armN: [-60, 143], armF: [-62, 145], legN: [-82, 0], legF: [-83, 0] },
     ],
     durationMs: 2400,
     props: [{ kind: 'mat', at: [12, G], w: 76 }],

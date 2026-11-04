@@ -22,6 +22,14 @@ Key choices made while building v1, and why. Newest at the bottom of each sectio
 - **Alternatives.** Month: a strength or endurance bias (or a lighter version). Week: a lighter week (one session fewer), or different days if there are only a few sessions. Workout: same patterns with different lifts and supersets for gym; tempo ↔ intervals, run/walk ↔ continuous, or fartlek for runs; "can't play today" conditioning for sport.
 - **Timed drills in warm-up / cool-down are picked by body region** (lower-body days get hip and leg drills).
 
+- **Training style, "bodyweight first" by default** (Carlo asked for calisthenics and a few classic lifts, no machines). It's a filter plus a ranking in exercise choice:
+  - Machines and cables are never chosen.
+  - Loaded exercises must be flagged `classic`.
+  - Upper-body main lifts are bodyweight, matched to experience by difficulty.
+  - Squat and hinge main lifts stay a barbell classic (goblet squat for beginners), because bodyweight squats stop being a strength stimulus quickly.
+  - Bodyweight progression is reps-based: 5–8 for pull-ups and dips, 8–12 for other mains.
+  - "Free weights" and "anything" styles are one tap away in Settings.
+
 ## Animations
 - **One stick-figure rig for every exercise** (`src/animations/rig.ts`), side view, with poses given as joint angles and blended frame to frame. This is what keeps all ~70 illustrations in the same line style, and makes them cheap to add. Frames are snapped to the ground automatically. Reduced-motion users see a still pose.
 

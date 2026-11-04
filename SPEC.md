@@ -84,6 +84,7 @@ Profile edit, units (kg/km default), backup export/import (JSON), reset data, th
 - Deload in week 4 of a block.
 - Duration scaling: when time is cut, keep main lifts, cut accessories first; when extended, add accessories/conditioning.
 - Equipment substitution via movement pattern.
+- **Training style (added Nov 2026, Carlo's preference): bodyweight first.** Calisthenics moves (pull-ups, dips, push-up variations, rows, single-leg work) lead; only a few simple classic lifts are used (back squat, deadlift, RDL, bench, overhead press, barbell/dumbbell row, goblet squat); no machines or cables. Leg main lifts stay classic barbell because bodyweight alone stops being enough. Selectable in onboarding/Settings: bodyweight first (default) / free weights / anything.
 - Everything deterministic and unit-tested. Keep the logic in a pure TypeScript module (`src/engine/`) with no UI dependencies.
 
 ## 7. Design direction

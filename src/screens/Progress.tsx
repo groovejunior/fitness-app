@@ -9,6 +9,8 @@ import { e1rmTrend, personalRecords, WEEKDAY_SHORT, type Profile } from '../engi
 import { BarChart, LineChart, Sparkline } from './progress/charts';
 import {
   MUSCLE_NAME,
+  bestRepsTrend,
+  isWeighted,
   buildHeatmap,
   doneInLastDays,
   exerciseName,
@@ -146,8 +148,10 @@ function Strength({ history, units }: { history: NonNullable<ReturnType<typeof u
         ) : (
           <ul className="divide-y divide-line">
             {ids.map((id) => {
-              const trend = e1rmTrend(id, history.sets);
+              const weighted = isWeighted(id, history.sets);
+              const trend = weighted ? e1rmTrend(id, history.sets) : bestRepsTrend(id, history.sets);
               const r = records.get(id);
+              const bestReps = trend.reduce((m, p) => Math.max(m, p.value), 0);
               return (
                 <li key={id}>
                   <button
@@ -159,8 +163,9 @@ function Strength({ history, units }: { history: NonNullable<ReturnType<typeof u
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[16px] font-medium">{exerciseName(id)}</div>
                       <div className="tnum mt-0.5 text-[13px] text-muted">
-                        {r ? `Best set ${kg(r.bestWeight, units)}` : ''}
-                        {r && trend.length ? ` · e1RM ${kg(Math.round(r.bestE1rm), units)}` : ''}
+                        {weighted && r ? `Best set ${kg(r.bestWeight, units)}` : ''}
+                        {weighted && r && trend.length ? ` · e1RM ${kg(Math.round(r.bestE1rm), units)}` : ''}
+                        {!weighted ? `Bodyweight · best set ${bestReps} reps` : ''}
                       </div>
                     </div>
                     <Sparkline values={trend.map((p) => p.value)} />
@@ -172,7 +177,7 @@ function Strength({ history, units }: { history: NonNullable<ReturnType<typeof u
           </ul>
         )}
       </Card>
-      <p className="mt-2 px-1 text-[12px] leading-snug text-muted">e1RM is an estimate of the heaviest single you could lift, worked out from your sets.</p>
+      <p className="mt-2 px-1 text-[12px] leading-snug text-muted">Bodyweight moves are tracked by your best set of reps. For loaded lifts, e1RM is an estimate of the heaviest single you could lift.</p>
       <Sheet open={openId !== null} onClose={() => setOpenId(null)} title={openId ? exerciseName(openId) : undefined}>
         {openId && <ExerciseDetail id={openId} history={history} units={units} />}
       </Sheet>
@@ -181,10 +186,50 @@ function Strength({ history, units }: { history: NonNullable<ReturnType<typeof u
 }
 
 function setsText(s: RecentSession, units: Units): string {
-  return s.groups.map((g) => `${kg(g.weightKg, units)} × ${g.reps.join(', ')}`).join(' · ');
+  return s.groups.map((g) => (g.weightKg > 0 ? `${kg(g.weightKg, units)} × ${g.reps.join(', ')}` : `${g.reps.join(', ')} reps`)).join(' · ');
 }
 
 function ExerciseDetail({ id, history, units }: { id: string; history: NonNullable<ReturnType<typeof useHistory>>; units: Units }) {
+  if (!isWeighted(id, history.sets)) return <BodyweightDetail id={id} history={history} units={units} />;
+  return <WeightedDetail id={id} history={history} units={units} />;
+}
+
+function BodyweightDetail({ id, history, units }: { id: string; history: NonNullable<ReturnType<typeof useHistory>>; units: Units }) {
+  const trend = bestRepsTrend(id, history.sets);
+  const recent = recentSessions(id, history.sets);
+  const best = trend.reduce((m, p) => (p.value > m.value ? p : m), { date: '', value: 0 });
+  return (
+    <div className="pb-2">
+      <div className="text-[13px] font-medium text-muted">Best set, in reps</div>
+      <div className="mb-2 mt-1 text-[13px] text-muted">Most reps in one set, each session.</div>
+      <LineChart points={trend} format={(v) => `${Math.round(v)}`} label={`Best reps for ${exerciseName(id)} over time`} testId="reps-chart" />
+      {best.value > 0 && (
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl bg-surface-2 px-4 py-3">
+            <div className="text-[12px] text-muted">Most reps</div>
+            <div className="tnum mt-0.5 text-[20px] font-semibold">{best.value}</div>
+            <div className="text-[12px] text-muted">{dateShort(best.date)}</div>
+          </div>
+          <div className="rounded-2xl bg-surface-2 px-4 py-3">
+            <div className="text-[12px] text-muted">Sessions</div>
+            <div className="tnum mt-0.5 text-[20px] font-semibold">{trend.length}</div>
+          </div>
+        </div>
+      )}
+      <h4 className="mb-1 mt-6 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">Recent sessions</h4>
+      <ul className="divide-y divide-line">
+        {recent.map((s) => (
+          <li key={s.date} className="flex items-baseline justify-between gap-4 py-3">
+            <span className="text-[15px] font-medium">{dateShort(s.date)}</span>
+            <span className="tnum text-right text-[14px] text-ink-2">{setsText(s, units)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function WeightedDetail({ id, history, units }: { id: string; history: NonNullable<ReturnType<typeof useHistory>>; units: Units }) {
   const f = units === 'imperial' ? KG_TO_LB : 1;
   const trend = e1rmTrend(id, history.sets);
   const rec = personalRecords(history.sets.filter((s) => s.exerciseId === id))[0];

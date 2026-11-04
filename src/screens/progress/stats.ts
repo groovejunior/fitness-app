@@ -118,14 +118,31 @@ export function muscleVolume(history: History, todayISO: ISODate): { muscle: Mus
   return [...m.entries()].map(([muscle, sets]) => ({ muscle, sets })).sort((a, b) => b.sets - a.sets);
 }
 
-/** Exercise ids that have logged weighted sets, most recently trained first. */
+/** Strength exercises with logged sets (weighted or bodyweight reps), most recently trained first. */
 export function weightedExercises(sets: SetLog[]): string[] {
   const last = new Map<string, ISODate>();
   for (const s of sets) {
-    if (!s.done || !s.weightKg || !s.reps) continue;
+    if (!s.done || !s.reps) continue;
+    const ex = findExercise(s.exerciseId);
+    if (ex && (ex.load === 'timed' || ex.roles.every((r) => r === 'warmup' || r === 'cooldown' || r === 'conditioning'))) continue;
     if ((last.get(s.exerciseId) ?? '') < s.date) last.set(s.exerciseId, s.date);
   }
   return [...last.entries()].sort((a, b) => (a[1] < b[1] ? 1 : -1)).map(([id]) => id);
+}
+
+/** Did this exercise get logged with a weight? (Otherwise it's tracked by reps.) */
+export function isWeighted(exerciseId: string, sets: SetLog[]): boolean {
+  return sets.some((s) => s.exerciseId === exerciseId && s.done && (s.weightKg ?? 0) > 0);
+}
+
+/** Most reps in one set, per session date (bodyweight progress). */
+export function bestRepsTrend(exerciseId: string, sets: SetLog[]): { date: ISODate; value: number }[] {
+  const by = new Map<ISODate, number>();
+  for (const s of sets) {
+    if (s.exerciseId !== exerciseId || !s.done || !s.reps) continue;
+    by.set(s.date, Math.max(by.get(s.date) ?? 0, s.reps));
+  }
+  return [...by.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([date, value]) => ({ date, value }));
 }
 
 export interface RecentSession {
@@ -137,7 +154,7 @@ export interface RecentSession {
 export function recentSessions(exerciseId: string, sets: SetLog[], limit = 5): RecentSession[] {
   const byDate = new Map<ISODate, SetLog[]>();
   for (const s of sets) {
-    if (s.exerciseId !== exerciseId || !s.done || !s.weightKg || !s.reps) continue;
+    if (s.exerciseId !== exerciseId || !s.done || !s.reps) continue;
     byDate.set(s.date, [...(byDate.get(s.date) ?? []), s]);
   }
   return [...byDate.entries()]
@@ -148,8 +165,9 @@ export function recentSessions(exerciseId: string, sets: SetLog[], limit = 5): R
       const groups: RecentSession['groups'] = [];
       for (const s of list) {
         const g = groups[groups.length - 1];
-        if (g && g.weightKg === s.weightKg) g.reps.push(s.reps!);
-        else groups.push({ weightKg: s.weightKg!, reps: [s.reps!] });
+        const w = s.weightKg ?? 0;
+        if (g && g.weightKg === w) g.reps.push(s.reps!);
+        else groups.push({ weightKg: w, reps: [s.reps!] });
       }
       return { date, groups };
     });

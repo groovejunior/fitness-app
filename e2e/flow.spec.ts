@@ -27,7 +27,7 @@ test('first month, first workout, shows in progress', async ({ page }) => {
   await expect(page.getByText('Today', { exact: true }).first()).toBeVisible();
 
   // --- Month plan
-  await page.getByRole('button', { name: 'Plan' }).click();
+  await page.getByRole('button', { name: 'Plan', exact: true }).click();
   await page.getByTestId('plan-view-month').click();
   await expect(page.getByText(/Deload/).first()).toBeVisible();
   await expect(page.getByTestId('month-option-alternative')).toBeVisible();
@@ -84,7 +84,7 @@ test('first month, first workout, shows in progress', async ({ page }) => {
   await expect(page).toHaveURL(/#\/today/);
 
   // --- Progress shows the done session and the lifts
-  await page.getByRole('button', { name: 'Progress' }).click();
+  await page.getByRole('button', { name: 'Progress', exact: true }).click();
   await expect(page.getByTestId('progress-week-count')).toContainText('1');
   await expect(page.getByTestId('progress-heatmap')).toBeVisible();
   await expect(page.locator('[data-testid^="exercise-history-"]').first()).toBeVisible();

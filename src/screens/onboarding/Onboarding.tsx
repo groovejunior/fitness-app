@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { coach } from '../../engine';
 import { GOAL_LABEL, emptyAvailability } from '../../engine/constants';
-import type { EquipmentContext, Experience, Goal, Profile, TimeWindow, Targets, WeekAvailability } from '../../engine/types';
+import type { EquipmentContext, Experience, Goal, Profile, TimeWindow, Targets, TrainingStyle, WeekAvailability } from '../../engine/types';
 import { SPORTS } from '../../content/sports';
 import { CONTEXT_LABEL } from '../../content/exercises';
+import { StyleChoice } from '../../components/StyleChoice';
 import { createBlock, saveProfile } from '../../data/repo';
 import { dayLong } from '../../lib/format';
 import { today } from '../../lib/today';
@@ -54,6 +55,7 @@ export default function Onboarding() {
   const [avail, setAvail] = useState<WeekAvailability>(emptyAvailability());
   const [gymAccess, setGymAccess] = useState(true);
   const [equipment, setEquipment] = useState<EquipmentContext>('gym');
+  const [style, setStyle] = useState<TrainingStyle>('calisthenics');
   const [targets, setTargets] = useState<Targets>({ gym: 3, run: 2, sport: 0, mobility: 0 });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -66,8 +68,9 @@ export default function Onboarding() {
       sports,
       defaultEquipment: gymAccess ? equipment : equipment === 'gym' ? 'home' : equipment,
       gymAccess,
+      style,
     }),
-    [name, goal, gymExp, runExp, sports, equipment, gymAccess],
+    [name, goal, gymExp, runExp, sports, equipment, gymAccess, style],
   );
 
   const effectiveTargets: Targets = { ...targets, sport: sports.length ? targets.sport : 0 };
@@ -249,6 +252,8 @@ export default function Onboarding() {
                 </Chip>
               ))}
             </div>
+            <p className="mt-6 mb-2 px-1 text-caption font-medium text-ink-2">How do you like to train strength?</p>
+            <StyleChoice value={style} onChange={setStyle} />
           </section>
         )}
 

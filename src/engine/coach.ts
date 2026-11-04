@@ -3,7 +3,7 @@ import { moveSession, planWeek, revalidateWeek, type WeekInput, type WeekPlanRes
 import type { WorkoutRequest } from './gym';
 import { buildWorkouts, substitutes, swapExercise, type WorkoutResult } from './workout';
 import { suggestLoad, type LoadSuggestion } from './progression';
-import type { Block, DayIndex, EquipmentContext, Exercise, History, Phase, Profile, RealismReport, Targets, WeekAvailability, WeekPlan, Workout } from './types';
+import type { Block, DayIndex, EquipmentContext, Exercise, History, Phase, Profile, RealismReport, Targets, TrainingStyle, WeekAvailability, WeekPlan, Workout } from './types';
 
 /**
  * The coach the app talks to. Everything the UI needs from "the brain" goes through here,
@@ -19,7 +19,7 @@ export interface CoachEngine {
   moveSession(plan: WeekPlan, slotId: string, toDay: DayIndex, profile: Profile): WeekPlan;
   revalidateWeek(plan: WeekPlan, profile: Profile): WeekPlan;
   buildWorkouts(req: WorkoutRequest): WorkoutResult;
-  substitutes(exerciseId: string, ctx: EquipmentContext): Exercise[];
+  substitutes(exerciseId: string, ctx: EquipmentContext, style?: TrainingStyle): Exercise[];
   swapExercise(workout: Workout, itemId: string, newExerciseId: string, ctx: { profile: Profile; history: History; phase: Phase }): Workout;
   suggestLoad(exercise: Exercise, repsMin: number, repsMax: number, history: History, phase: Phase): LoadSuggestion;
 }

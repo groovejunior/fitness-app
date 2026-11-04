@@ -208,3 +208,46 @@ describe('sport and mobility', () => {
     }
   });
 });
+
+describe('training style', () => {
+  const allItems = (w: Workout) => w.sections.flatMap((s) => s.items).map((i) => getExercise(i.exerciseId));
+  const days: Array<[GymDay, number]> = [['full', 0], ['full', 1], ['full', 2], ['upper', 0], ['upper', 1], ['lower', 0], ['push', 0], ['pull', 0], ['legs', 0]];
+
+  it('bodyweight first is the default: no machines or cables, only classic loaded lifts', () => {
+    for (const [gymDay, variant] of days) {
+      for (const v of ['recommended', 'alternative'] as const) {
+        const w = buildGymWorkout(req({ slot: gymSlot(gymDay, variant), minutes: 75 }), v);
+        for (const ex of allItems(w)) {
+          expect(ex.equipment.includes('cable'), ex.id).toBe(false);
+          if (ex.loaded) expect(ex.classic, `${ex.id} in ${gymDay}${variant}`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('upper-body main moves are bodyweight, leg main lifts stay barbell', () => {
+    const upper = buildGymWorkout(req({ slot: gymSlot('upper', 0) }), 'recommended');
+    expect(mainIds(upper).every((id) => !getExercise(id).loaded)).toBe(true);
+    const lower = buildGymWorkout(req({ slot: gymSlot('lower', 0) }), 'recommended');
+    expect(mainIds(lower)).toEqual(['back-squat', 'deadlift']);
+  });
+
+  it('pull-ups and dips use 5–8 reps', () => {
+    const upper = buildGymWorkout(req({ slot: gymSlot('upper', 0) }), 'recommended');
+    const pu = items(upper).find((i) => i.exerciseId === 'pull-up')!;
+    expect([pu.repsMin, pu.repsMax]).toEqual([5, 8]);
+  });
+
+  it('"anything" can use machines, "free weights" cannot', () => {
+    const anyIds = items(buildGymWorkout(req({ profile: { ...carlo, style: 'all' }, slot: gymSlot('full', 2) }), 'recommended')).map((i) => i.exerciseId);
+    expect(anyIds).toContain('lat-pulldown');
+    const fw = buildGymWorkout(req({ profile: { ...carlo, style: 'freeWeights' }, slot: gymSlot('upper', 0) }), 'recommended');
+    expect(allItems(fw).some((e) => e.equipment.includes('cable'))).toBe(false);
+    expect(mainIds(fw)).toContain('bench-press');
+  });
+
+  it('swaps that fit the style come first', () => {
+    const subs = substitutes('bench-press', 'gym', 'calisthenics');
+    expect(subs[0].id).toBe('push-up');
+  });
+});

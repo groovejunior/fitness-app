@@ -1,9 +1,10 @@
+import { StyleChoice } from '../../components/StyleChoice';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GOAL_LABEL } from '../../engine/constants';
 import type { EquipmentContext, Experience, Goal, Profile } from '../../engine/types';
 import { SPORTS } from '../../content/sports';
-import { CONTEXT_LABEL } from '../../content/exercises';
+import { STYLE_LABEL, CONTEXT_LABEL } from '../../content/exercises';
 import { useProfile, useSettings } from '../../data/hooks';
 import { exportBackup, importBackup, parseBackup, resetAll, saveProfile, saveSettings, type Backup } from '../../data/repo';
 import { applyTheme, type ThemePref } from '../../lib/theme';
@@ -137,6 +138,7 @@ export default function Settings() {
               <ListRow title="Experience" detail={`Gym ${profile.experience.gym}, running ${profile.experience.run}`} onClick={openEdit} />
               <ListRow title="Sports" detail={sportNames || 'None'} onClick={openEdit} />
               <ListRow title="Training place" detail={`${CONTEXT_LABEL[profile.defaultEquipment]}${profile.gymAccess ? ', gym nearby' : ', no gym nearby'}`} onClick={openEdit} />
+              <ListRow title="Training style" detail={STYLE_LABEL[profile.style ?? 'calisthenics']} onClick={openEdit} />
             </List>
           ) : (
             <p className="px-1 text-caption text-ink-3">Loading…</p>
@@ -250,6 +252,10 @@ export default function Settings() {
                   </Chip>
                 ))}
               </div>
+            </div>
+            <div>
+              <p className="mb-2 px-1 text-caption font-medium text-ink-2">Training style</p>
+              <StyleChoice value={draft.style ?? 'calisthenics'} onChange={(v) => patch({ style: v })} />
             </div>
             <Button block size="lg" onClick={saveEdit}>
               Save

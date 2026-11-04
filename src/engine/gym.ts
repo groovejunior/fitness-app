@@ -1,4 +1,4 @@
-import { CONTEXT_EQUIPMENT, EXERCISES, getExercise, isAvailable } from '../content/exercises';
+import { CONTEXT_EQUIPMENT, EXERCISES, fitsStyle, getExercise, isAvailable, isCalisthenics } from '../content/exercises';
 import { suggestLoad } from './progression';
 import type {
   EquipmentContext,
@@ -12,6 +12,7 @@ import type {
   PlannedSlot,
   Profile,
   Slot,
+  TrainingStyle,
   Workout,
   WorkoutItem,
   WorkoutSection,
@@ -83,8 +84,13 @@ const FALLBACK: Partial<Record<Slot, Slot[]>> = {
   calves: ['plyo'],
 };
 
-function rank(ex: Exercise, role: Role, exp: Experience): number {
+const LEG_SLOTS: Slot[] = ['squat', 'hinge'];
+
+function rank(ex: Exercise, role: Role, exp: Experience, style: TrainingStyle): number {
   let r = 0;
+  // Bodyweight first: calisthenics moves lead, except the squat and hinge main lifts,
+  // which stay classic barbell work because bodyweight alone stops being enough for legs.
+  if (style === 'calisthenics' && !LEG_SLOTS.includes(ex.slot) && isCalisthenics(ex)) r += role === 'main' ? 4 : 2;
   if (role === 'main') {
     r += ex.compound ? 3 : 0;
     r += ex.loaded ? 2 : 0;
@@ -98,25 +104,31 @@ function rank(ex: Exercise, role: Role, exp: Experience): number {
     r += ex.loaded ? 1 : 0;
     r += ex.compound ? 1 : 0;
     r -= ex.equipment.includes('barbell') ? 1 : 0;
-    r -= exp === 'beginner' && ex.difficulty === 3 ? 3 : 0;
+    r -= ex.difficulty === 3 ? (exp === 'beginner' ? 3 : 1) : 0;
   }
   return r;
 }
 
-export function candidates(slot: Slot, role: Role, ctx: EquipmentContext, exp: Experience): Exercise[] {
-  const list = EXERCISES.filter((e) => e.slot === slot && isAvailable(e, ctx));
+/** Ranked exercises for a slot. `strict` drops moves that don't fit the style; otherwise they are a last resort. */
+export function candidates(slot: Slot, role: Role, ctx: EquipmentContext, exp: Experience, style: TrainingStyle = 'calisthenics', strict = false): Exercise[] {
+  const available = EXERCISES.filter((e) => e.slot === slot && isAvailable(e, ctx));
+  const styled = available.filter((e) => fitsStyle(e, style));
+  const list = styled.length || strict ? styled : available;
   // Stable sort by rank, then library order.
   return list
-    .map((e, i) => ({ e, i, r: rank(e, role, exp) }))
+    .map((e, i) => ({ e, i, r: rank(e, role, exp, style) }))
     .sort((a, b) => b.r - a.r || a.i - b.i)
     .map((x) => x.e);
 }
 
-function pick(slot: Slot, role: Role, ctx: EquipmentContext, exp: Experience, used: Set<string>, offset: number): Exercise | null {
+function pick(slot: Slot, role: Role, ctx: EquipmentContext, exp: Experience, used: Set<string>, offset: number, style: TrainingStyle): Exercise | null {
   const tryList = [slot, ...(FALLBACK[slot] ?? [])];
-  for (const s of tryList) {
-    const c = candidates(s, role, ctx, exp).filter((e) => !used.has(e.id));
-    if (c.length) return c[Math.min(offset, c.length - 1)];
+  // First anything that fits the training style (in the slot, then its fallbacks), then anything at all.
+  for (const strict of [true, false]) {
+    for (const s of tryList) {
+      const c = candidates(s, role, ctx, exp, style, strict).filter((e) => !used.has(e.id));
+      if (c.length) return c[Math.min(offset, c.length - 1)];
+    }
   }
   return null;
 }
@@ -152,7 +164,11 @@ export function prescribe(ex: Exercise, role: Role, profile: Profile, intensity:
   if (ex.unit === 'sec') rx = { ...rx, repsMin: 30, repsMax: ex.slot === 'carry' ? 40 : 45 };
   else if (ex.unit === 'secPerSide') rx = { ...rx, repsMin: 20, repsMax: 30 };
   else if (!ex.loaded && ex.slot !== 'plyo' && (role === 'main' || role === 'accessory')) {
-    rx = ex.difficulty === 3 ? { ...rx, repsMin: 3, repsMax: 8 } : { ...rx, repsMin: Math.max(6, rx.repsMin), repsMax: rx.repsMax + 4 };
+    // Bodyweight progression is reps-based: 5–8 for pull-ups and dips, 8–12 for other main moves.
+    const hard = ex.slot === 'pullV' || ex.id === 'dip' || ex.id === 'pike-push-up';
+    if (hard) rx = { ...rx, repsMin: profile.experience.gym === 'beginner' ? 3 : 5, repsMax: 8 };
+    else if (role === 'main') rx = { ...rx, repsMin: 8, repsMax: 12 };
+    else rx = { ...rx, repsMin: 10, repsMax: 15 };
   }
   if (ex.unit === 'repsPerSide' && rx.repsMax > 12) rx = { ...rx, repsMin: Math.min(rx.repsMin, 8), repsMax: 12 };
 
@@ -238,13 +254,14 @@ export function buildGymWorkout(req: WorkoutRequest, variant: 'recommended' | 'a
   const templates = TEMPLATES[gymDay];
   const template = templates[(slot.variant ?? 0) % templates.length];
   const exp = profile.experience.gym;
+  const style = profile.style ?? 'calisthenics';
   const offset = variant === 'alternative' ? 1 : 0;
   const superset = variant === 'alternative';
 
   const used = new Set<string>();
   const planned: Planned[] = [];
   for (const ts of template) {
-    const ex = pick(ts.slot, ts.role, equipment, exp, used, ts.role === 'main' && variant === 'recommended' ? 0 : offset);
+    const ex = pick(ts.slot, ts.role, equipment, exp, used, ts.role === 'main' && variant === 'recommended' ? 0 : offset, style);
     if (!ex) continue;
     used.add(ex.id);
     planned.push({ ex, role: ts.role, rx: prescribe(ex, ts.role, profile, intensity, phase) });
@@ -299,7 +316,7 @@ export function buildGymWorkout(req: WorkoutRequest, variant: 'recommended' | 'a
       if (est() >= target - 5) break;
       if (planned.some((p) => p.ex.slot === s)) continue;
       const role: Role = s === 'core' || s === 'antiRotation' ? 'core' : s === 'conditioning' || s === 'plyo' ? 'finisher' : 'accessory';
-      const ex = pick(s, role, equipment, exp, used, offset);
+      const ex = pick(s, role, equipment, exp, used, offset, style);
       if (!ex) continue;
       const trial: Planned = { ex, role, rx: prescribe(ex, role, profile, intensity, phase) };
       planned.push(trial);

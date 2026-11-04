@@ -36,3 +36,11 @@ Key choices made while building v1, and why. Newest at the bottom.
 
 ## Design
 - Warm off-white background, white cards with very soft shadows, near-black ink; dark mode with the same structure. One accent colour: jade (#1f7a5c light / #4cc497 dark). System font stack (SF Pro on iPhone), no web fonts, so it works offline from the first load.
+
+## Training style: bodyweight first (Nov 2026, Carlo's preference)
+Carlo asked for calisthenics plus a few classic lifts and no machines (recorded in `SPEC.md` §6; first built in a parallel session, ported here).
+- `Profile.style`: `calisthenics` ("Bodyweight first", the default), `freeWeights`, `all`. Chosen in onboarding (equipment step) and Settings.
+- Bodyweight first is a filter plus a ranking in exercise choice: cables/machines are never chosen; loaded exercises must be marked `classic` (back squat, goblet squat, deadlift, Romanian deadlift, bench press, overhead press, dumbbell row); bodyweight moves get a ranking bonus everywhere except squat and hinge slots, which stay classic barbell work because bodyweight alone stops being a strength stimulus for legs.
+- If nothing in a slot fits the style, the engine first tries the slot's fallbacks (e.g. carry → core) and only then relaxes the style.
+- Bodyweight progression is reps-based: 5–8 for pull-ups, dips and pike push-ups (3–8 for beginners), 8–12 for other main moves, 10–15 for accessories.
+- Swap lists show moves that fit the style first; the others stay available below.

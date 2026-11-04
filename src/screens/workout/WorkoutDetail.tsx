@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { coach, EMPTY_HISTORY, isHardEffort, type EquipmentContext, type Intensity, type PlannedSlot, type Profile, type RunStep, type Workout, type WorkoutItem, type WorkoutSection } from '../../engine';
+import { coach, EMPTY_HISTORY, isHardEffort, type EquipmentContext, type Intensity, type PlannedSlot, type Profile, type RunStep, type TrainingStyle, type Workout, type WorkoutItem, type WorkoutSection } from '../../engine';
 import { ExerciseFigure } from '../../anim/Figure';
 import { Empty, Loading } from '../../components/Empty';
 import { SessionGlyph } from '../../components/SessionGlyph';
@@ -277,6 +277,7 @@ function Detail({ weekStart, week, slot, profile, session, history }: Props) {
           <ExerciseSheet
             item={openedItem}
             equipment={shown.equipment}
+            style={profile?.style ?? 'calisthenics'}
             canSwap={!locked && !isRun}
             onSwap={(newId) => {
               setSwaps((prev) => ({ ...prev, [variant]: coach.swapExercise(shown, openedItem.id, newId, { profile, history, phase: week.plan.phase }) }));
@@ -358,9 +359,9 @@ function ItemRow({ item, tag, units, onOpen }: { item: WorkoutItem; tag?: string
   );
 }
 
-function ExerciseSheet({ item, equipment, canSwap, onSwap }: { item: WorkoutItem; equipment: EquipmentContext; canSwap: boolean; onSwap: (id: string) => void }) {
+function ExerciseSheet({ item, equipment, canSwap, onSwap, style }: { item: WorkoutItem; equipment: EquipmentContext; canSwap: boolean; onSwap: (id: string) => void; style?: TrainingStyle }) {
   const ex = getExercise(item.exerciseId);
-  const subs = canSwap ? coach.substitutes(ex.id, equipment).slice(0, 8) : [];
+  const subs = canSwap ? coach.substitutes(ex.id, equipment, style).slice(0, 8) : [];
   return (
     <div className="space-y-5">
       <div className="mx-auto w-full max-w-72 rounded-lg bg-surface-2 p-2">

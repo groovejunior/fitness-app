@@ -1,4 +1,4 @@
-import type { Equipment, EquipmentContext, Exercise } from '../engine/types';
+import type { Equipment, EquipmentContext, Exercise, TrainingStyle } from '../engine/types';
 
 /**
  * Exercise library. Each exercise has 2–3 short cues, one common mistake,
@@ -13,7 +13,7 @@ const E = (e: Omit<Exercise, 'animation' | 'primary'> & { animation?: string; pr
 export const EXERCISES: Exercise[] = [
   // ---- Squat ----
   E({
-    id: 'back-squat', name: 'Back squat', pattern: 'squat', slot: 'squat',
+    id: 'back-squat', classic: true, name: 'Back squat', pattern: 'squat', slot: 'squat',
     muscles: ['quads', 'glutes', 'hamstrings', 'core'], primary: 2,
     equipment: ['barbell', 'rack'], difficulty: 3, unit: 'reps', loaded: true, increment: 5, compound: true,
     cues: ['Bar on your upper back, brace hard', 'Sit down between your heels', 'Drive up, chest and hips together'],
@@ -21,7 +21,7 @@ export const EXERCISES: Exercise[] = [
     substitutions: ['goblet-squat', 'bulgarian-split-squat', 'bodyweight-squat'],
   }),
   E({
-    id: 'goblet-squat', name: 'Goblet squat', pattern: 'squat', slot: 'squat',
+    id: 'goblet-squat', classic: true, name: 'Goblet squat', pattern: 'squat', slot: 'squat',
     muscles: ['quads', 'glutes', 'core'], primary: 2,
     equipment: ['dumbbell'], difficulty: 1, unit: 'reps', loaded: true, increment: 2, compound: true,
     cues: ['Hold the weight at your chest', 'Elbows inside the knees at the bottom', 'Stand tall, squeeze your glutes'],
@@ -38,7 +38,7 @@ export const EXERCISES: Exercise[] = [
   }),
   // ---- Hinge ----
   E({
-    id: 'deadlift', name: 'Deadlift', pattern: 'hinge', slot: 'hinge',
+    id: 'deadlift', classic: true, name: 'Deadlift', pattern: 'hinge', slot: 'hinge',
     muscles: ['hamstrings', 'glutes', 'back', 'core'], primary: 2,
     equipment: ['barbell'], difficulty: 3, unit: 'reps', loaded: true, increment: 5, compound: true,
     cues: ['Bar over mid-foot, shins close', 'Flat back, pull the slack out', 'Push the floor away, hips through'],
@@ -46,7 +46,7 @@ export const EXERCISES: Exercise[] = [
     substitutions: ['romanian-deadlift', 'db-romanian-deadlift', 'kettlebell-swing'],
   }),
   E({
-    id: 'romanian-deadlift', name: 'Romanian deadlift', pattern: 'hinge', slot: 'hinge',
+    id: 'romanian-deadlift', classic: true, name: 'Romanian deadlift', pattern: 'hinge', slot: 'hinge',
     muscles: ['hamstrings', 'glutes', 'back'], primary: 2,
     equipment: ['barbell'], difficulty: 2, unit: 'reps', loaded: true, increment: 5, compound: true,
     cues: ['Soft knees, push your hips back', 'Bar slides down your thighs', 'Stop when your hamstrings are tight'],
@@ -104,7 +104,7 @@ export const EXERCISES: Exercise[] = [
   }),
   // ---- Horizontal push ----
   E({
-    id: 'bench-press', name: 'Bench press', pattern: 'push', slot: 'pushH',
+    id: 'bench-press', classic: true, name: 'Bench press', pattern: 'push', slot: 'pushH',
     muscles: ['chest', 'shoulders', 'arms'], primary: 1,
     equipment: ['barbell', 'bench', 'rack'], difficulty: 2, unit: 'reps', loaded: true, increment: 2.5, compound: true,
     cues: ['Shoulder blades back and down', 'Bar to lower chest', 'Press up and slightly back'],
@@ -137,7 +137,7 @@ export const EXERCISES: Exercise[] = [
   }),
   // ---- Vertical push ----
   E({
-    id: 'overhead-press', name: 'Overhead press', pattern: 'push', slot: 'pushV',
+    id: 'overhead-press', classic: true, name: 'Overhead press', pattern: 'push', slot: 'pushV',
     muscles: ['shoulders', 'arms', 'core'], primary: 1,
     equipment: ['barbell', 'rack'], difficulty: 2, unit: 'reps', loaded: true, increment: 2.5, compound: true,
     cues: ['Squeeze glutes, ribs down', 'Press straight up past your face', 'Head through at the top'],
@@ -187,7 +187,7 @@ export const EXERCISES: Exercise[] = [
     substitutions: ['db-row', 'inverted-row'],
   }),
   E({
-    id: 'db-row', name: 'One-arm dumbbell row', pattern: 'pull', slot: 'pullH',
+    id: 'db-row', classic: true, name: 'One-arm dumbbell row', pattern: 'pull', slot: 'pullH',
     muscles: ['back', 'arms'], primary: 1,
     equipment: ['dumbbell', 'bench'], difficulty: 1, unit: 'repsPerSide', loaded: true, increment: 2, compound: true,
     cues: ['Hand and knee on the bench', 'Pull the dumbbell to your hip', 'Lower all the way'],
@@ -384,6 +384,33 @@ export const CONTEXT_LABEL: Record<EquipmentContext, string> = {
   home: 'Home kit',
   bodyweight: 'Bodyweight',
   outdoors: 'Outdoors',
+};
+
+/** Equipment that is part of bodyweight training (bars, a bench or box, a band). */
+const CALISTHENICS_KIT: Equipment[] = ['pullupBar', 'dipBars', 'bench', 'box', 'band'];
+
+export function isCalisthenics(ex: Exercise): boolean {
+  return ex.equipment.every((q) => CALISTHENICS_KIT.includes(q));
+}
+
+/** Does the training style allow this exercise at all? */
+export function fitsStyle(ex: Exercise, style: TrainingStyle = 'calisthenics'): boolean {
+  if (style === 'all') return true;
+  if (ex.equipment.includes('cable')) return false;
+  if (style === 'freeWeights') return true;
+  return isCalisthenics(ex) || !!ex.classic;
+}
+
+export const STYLE_LABEL: Record<TrainingStyle, string> = {
+  calisthenics: 'Bodyweight first',
+  freeWeights: 'Free weights',
+  all: 'Anything',
+};
+
+export const STYLE_HINT: Record<TrainingStyle, string> = {
+  calisthenics: 'Pull-ups, dips, push-ups and rows lead. Barbell only for squats, deadlifts and a few classics. No machines.',
+  freeWeights: 'Barbells, dumbbells and kettlebells. No machines or cables.',
+  all: 'Anything the equipment allows, machines and cables included.',
 };
 
 export function isAvailable(ex: Exercise, ctx: EquipmentContext): boolean {

@@ -1,9 +1,9 @@
-import { EXERCISES, getExercise, isAvailable } from '../content/exercises';
+import { EXERCISES, fitsStyle, getExercise, isAvailable } from '../content/exercises';
 import { buildGymWorkout, prescribe, type Role, type WorkoutRequest } from './gym';
 import { buildMobilityWorkout, buildSportWorkout } from './other';
 import { suggestLoad } from './progression';
 import { buildRunWorkout } from './run';
-import type { EquipmentContext, Exercise, History, Phase, Profile, Workout, WorkoutItem } from './types';
+import type { EquipmentContext, Exercise, History, Phase, Profile, TrainingStyle, Workout, WorkoutItem } from './types';
 
 export interface WorkoutResult {
   recommended: Workout;
@@ -30,7 +30,14 @@ export function buildWorkouts(req: WorkoutRequest): WorkoutResult {
  * Exercises that can replace this one with the given equipment: same slot first
  * (listed substitutions in order), then the same coarse movement pattern.
  */
-export function substitutes(exerciseId: string, ctx: EquipmentContext): Exercise[] {
+export function substitutes(exerciseId: string, ctx: EquipmentContext, style?: TrainingStyle): Exercise[] {
+  const all = substitutesAny(exerciseId, ctx);
+  if (!style) return all;
+  // Moves that fit the training style first; the rest stay available at the end.
+  return [...all.filter((e) => fitsStyle(e, style)), ...all.filter((e) => !fitsStyle(e, style))];
+}
+
+function substitutesAny(exerciseId: string, ctx: EquipmentContext): Exercise[] {
   const ex = getExercise(exerciseId);
   const ok = (e: Exercise) => e.id !== ex.id && isAvailable(e, ctx);
   const listed = ex.substitutions.map(getExercise).filter(ok);

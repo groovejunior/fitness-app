@@ -83,6 +83,8 @@ export interface Exercise {
   animation: string;
   /** Ids of exercises with the same slot that make good swaps. */
   substitutions: string[];
+  /** A simple classic free-weight lift. The bodyweight-first style allows these, but no other loaded exercises. */
+  classic?: boolean;
 }
 
 export interface Profile {
@@ -94,7 +96,16 @@ export interface Profile {
   sports: string[]; // sport ids, see SPORTS
   defaultEquipment: EquipmentContext;
   gymAccess: boolean;
+  /** How Carlo likes to train strength. Missing = 'calisthenics' (bodyweight first). */
+  style?: TrainingStyle;
 }
+
+/**
+ * calisthenics: bodyweight first, plus a few classic barbell/dumbbell lifts; never machines or cables.
+ * freeWeights: any free weights; never machines or cables.
+ * all: anything the equipment allows.
+ */
+export type TrainingStyle = 'calisthenics' | 'freeWeights' | 'all';
 
 export interface DayAvailability {
   available: boolean;

@@ -50,3 +50,26 @@ describe('double progression', () => {
     expect(e1rm(100, 10)).toBeCloseTo(133.3, 1);
   });
 });
+
+describe('bodyweight ladder', () => {
+  it('suggests the harder variation once every set hits the top of the range', () => {
+    const pu = getExercise('push-up');
+    const h: History = { exercises: [{ date: '2026-10-01', exerciseId: 'push-up', repsMin: 8, repsMax: 12, sets: [12, 12, 12].map((r) => ({ weightKg: null, reps: r, done: true })) }], runs: [] };
+    const s = suggestLoad(pu, 8, 12, h, 'build');
+    expect(s.harder).toBe(pu.harder);
+    expect(s.note).toMatch(/Ready for/);
+  });
+  it('ladders have no cycles and point at real exercises', async () => {
+    const { EXERCISES, EXERCISE_BY_ID } = await import('../../content/exercises');
+    for (const e of EXERCISES) {
+      const seen = new Set<string>([e.id]);
+      let cur = e.harder;
+      while (cur) {
+        expect(EXERCISE_BY_ID[cur], `${e.id} -> ${cur}`).toBeDefined();
+        expect(seen.has(cur), `cycle at ${cur}`).toBe(false);
+        seen.add(cur);
+        cur = EXERCISE_BY_ID[cur].harder;
+      }
+    }
+  });
+});

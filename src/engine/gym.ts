@@ -166,7 +166,8 @@ export function prescribe(ex: Exercise, role: Role, profile: Profile, intensity:
   else if (!ex.loaded && ex.slot !== 'plyo' && (role === 'main' || role === 'accessory')) {
     // Bodyweight progression is reps-based: 5–8 for pull-ups and dips, 8–12 for other main moves.
     const hard = ex.slot === 'pullV' || ex.id === 'dip' || ex.id === 'pike-push-up';
-    if (hard) rx = { ...rx, repsMin: profile.experience.gym === 'beginner' ? 3 : 5, repsMax: 8 };
+    if (ex.id === 'negative-pull-up') rx = { ...rx, repsMin: 3, repsMax: 5 };
+    else if (hard) rx = { ...rx, repsMin: profile.experience.gym === 'beginner' ? 3 : 5, repsMax: 8 };
     else if (role === 'main') rx = { ...rx, repsMin: 8, repsMax: 12 };
     else rx = { ...rx, repsMin: 10, repsMax: 15 };
   }

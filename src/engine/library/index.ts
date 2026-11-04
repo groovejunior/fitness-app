@@ -1,8 +1,9 @@
 import type { Exercise } from '../types';
 import { STRENGTH_EXERCISES } from './strength';
 import { CONDITIONING_EXERCISES } from './conditioning';
+import { CALISTHENICS_EXERCISES } from './calisthenics';
 
-export const EXERCISES: Exercise[] = [...STRENGTH_EXERCISES, ...CONDITIONING_EXERCISES];
+export const EXERCISES: Exercise[] = [...STRENGTH_EXERCISES, ...CALISTHENICS_EXERCISES, ...CONDITIONING_EXERCISES];
 
 const BY_ID = new Map(EXERCISES.map((e) => [e.id, e]));
 

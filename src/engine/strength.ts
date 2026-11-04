@@ -183,7 +183,10 @@ function equipmentScore(e: Exercise, ctx: EquipmentContext, exp: Experience, sty
   const fit = -0.3 * Math.abs(e.difficulty - DIFFICULTY_TARGET[exp]);
   if (style === 'calisthenics') {
     const lowerMain = slot?.role === 'main' && LOWER.includes(e.pattern);
-    if (isCalisthenics(e)) return (lowerMain ? 2 : 4) + fit;
+    // Bar work (pull-ups, dips, rows on a bar) is the backbone of calisthenics: prefer it when there's a bar.
+    const bar = eq.includes('pullup-bar') || eq.includes('dip-bars') ? 0.5 : 0;
+    const band = eq.includes('band') ? -0.4 : 0;
+    if (isCalisthenics(e)) return (lowerMain ? 2 : 4) + fit + bar + band;
     if (e.classic) {
       if (lowerMain) return eq.includes('barbell') ? (exp === 'beginner' ? 3 : 4) : exp === 'beginner' ? 4 : 3;
       return 2.5;
@@ -257,7 +260,12 @@ function choose(slot: Slot, list: Exercise[], input: StrengthInput, alt: boolean
     return top.length > 1 ? top[(i + 1) % top.length] : (list[1] ?? list[0]);
   }
   const period = Math.floor(input.weekIndex / 2);
-  const rotated = rotate(list, hash(`${input.blockId}:${input.focus}:${slot.key}`) + period + (alt ? 1 : 0));
+  // Rotate for variety, but only among the well-suited options.
+  const scA = (e: Exercise) => equipmentScore(e, input.equipment, input.profile.experience.gym, styleOf(input.profile), slot);
+  const bestA = scA(list[0]);
+  const good = list.filter((e) => scA(e) >= bestA - 0.6);
+  const pool = styleOf(input.profile) === 'calisthenics' && good.length >= 2 ? good : list;
+  const rotated = rotate(pool, hash(`${input.blockId}:${input.focus}:${slot.key}`) + period + (alt ? 1 : 0));
   return rotated[0];
 }
 

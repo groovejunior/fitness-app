@@ -5,6 +5,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
   // ---------------------------------------------------------------- squat
   {
     id: 'back-squat',
+    classic: true,
     name: 'Back squat',
     pattern: 'squat',
     muscles: ['quads', 'glutes', 'core'],
@@ -19,6 +20,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
   },
   {
     id: 'goblet-squat',
+    classic: true,
     name: 'Goblet squat',
     pattern: 'squat',
     muscles: ['quads', 'glutes', 'core'],
@@ -29,7 +31,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Elbows inside your knees', 'Chest tall the whole way', 'Push the floor away'],
     mistake: 'Letting the chest fold forward at the bottom.',
     animationId: 'goblet-squat',
-    substitutions: ['back-squat', 'bodyweight-squat', 'leg-press'],
+    substitutions: ['back-squat', 'bodyweight-squat', 'leg-press', 'box-pistol-squat'],
   },
   {
     id: 'bodyweight-squat',
@@ -43,7 +45,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Sit back and down', 'Knees follow your toes', 'Stand tall at the top'],
     mistake: 'Heels coming off the floor.',
     animationId: 'bodyweight-squat',
-    substitutions: ['goblet-squat', 'back-squat'],
+    substitutions: ['goblet-squat', 'back-squat', 'box-pistol-squat'],
   },
   {
     id: 'leg-press',
@@ -63,6 +65,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
   // ---------------------------------------------------------------- hinge
   {
     id: 'romanian-deadlift',
+    classic: true,
     name: 'Romanian deadlift',
     pattern: 'hinge',
     muscles: ['hamstrings', 'glutes', 'back'],
@@ -77,6 +80,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
   },
   {
     id: 'deadlift',
+    classic: true,
     name: 'Deadlift',
     pattern: 'hinge',
     muscles: ['glutes', 'hamstrings', 'back'],
@@ -91,6 +95,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
   },
   {
     id: 'db-romanian-deadlift',
+    classic: true,
     name: 'Dumbbell Romanian deadlift',
     pattern: 'hinge',
     muscles: ['hamstrings', 'glutes', 'back'],
@@ -115,7 +120,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Chin tucked, ribs down', 'Drive through your heels', 'Squeeze hard at the top'],
     mistake: 'Arching the lower back instead of using the glutes.',
     animationId: 'hip-thrust',
-    substitutions: ['glute-bridge', 'db-romanian-deadlift'],
+    substitutions: ['glute-bridge', 'db-romanian-deadlift', 'single-leg-glute-bridge'],
   },
   {
     id: 'glute-bridge',
@@ -129,7 +134,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Heels close to your butt', 'Push through your heels', 'Pause at the top'],
     mistake: 'Overarching the back instead of lifting with the glutes.',
     animationId: 'glute-bridge',
-    substitutions: ['hip-thrust', 'single-leg-rdl', 'db-romanian-deadlift'],
+    substitutions: ['hip-thrust', 'single-leg-rdl', 'db-romanian-deadlift', 'single-leg-glute-bridge', 'sliding-leg-curl'],
   },
   {
     id: 'single-leg-rdl',
@@ -144,7 +149,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Reach back with the free leg', 'Hips stay square to the floor', 'Soft bend in the standing knee'],
     mistake: 'Opening the hips up to the side as you lower.',
     animationId: 'single-leg-rdl',
-    substitutions: ['db-romanian-deadlift', 'glute-bridge'],
+    substitutions: ['db-romanian-deadlift', 'glute-bridge', 'single-leg-glute-bridge'],
   },
 
   // ---------------------------------------------------------------- lunge
@@ -161,7 +166,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Step back, drop straight down', 'Front heel stays planted', 'Stay tall through your chest'],
     mistake: 'Leaning forward and pushing off the back foot.',
     animationId: 'reverse-lunge',
-    substitutions: ['db-reverse-lunge', 'step-up', 'bulgarian-split-squat'],
+    substitutions: ['db-reverse-lunge', 'step-up', 'bulgarian-split-squat', 'split-squat', 'cossack-squat'],
   },
   {
     id: 'db-reverse-lunge',
@@ -176,7 +181,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Hold the weights at your sides', 'Drop the back knee straight down', 'Push through the front heel'],
     mistake: 'Taking a short step so the front knee runs far past the toes.',
     animationId: 'db-reverse-lunge',
-    substitutions: ['reverse-lunge', 'bulgarian-split-squat', 'step-up'],
+    substitutions: ['reverse-lunge', 'bulgarian-split-squat', 'step-up', 'split-squat'],
   },
   {
     id: 'bulgarian-split-squat',
@@ -191,7 +196,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Front foot well out ahead', 'Lower straight down', 'Drive through the front heel'],
     mistake: 'Standing too close to the bench, so the knee shoots forward.',
     animationId: 'bulgarian-split-squat',
-    substitutions: ['db-reverse-lunge', 'reverse-lunge', 'step-up'],
+    substitutions: ['db-reverse-lunge', 'reverse-lunge', 'step-up', 'split-squat'],
   },
   {
     id: 'step-up',
@@ -206,12 +211,13 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Whole foot on the box', 'Push through the top leg', 'Control the way down'],
     mistake: 'Pushing off the back foot instead of the top leg.',
     animationId: 'step-up',
-    substitutions: ['reverse-lunge', 'db-reverse-lunge', 'bulgarian-split-squat'],
+    substitutions: ['reverse-lunge', 'db-reverse-lunge', 'bulgarian-split-squat', 'split-squat'],
   },
 
   // ------------------------------------------------------- push, horizontal
   {
     id: 'bench-press',
+    classic: true,
     name: 'Bench press',
     pattern: 'push',
     plane: 'horizontal',
@@ -253,7 +259,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Pause when your elbows touch down', 'Keep your wrists straight', 'Press up over your chest'],
     mistake: 'Bouncing the elbows off the floor.',
     animationId: 'db-floor-press',
-    substitutions: ['db-bench-press', 'pushup', 'bench-press'],
+    substitutions: ['db-bench-press', 'pushup', 'bench-press', 'incline-pushup'],
   },
   {
     id: 'pushup',
@@ -268,7 +274,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Body in one straight line', 'Elbows angled back, not flared', 'Chest to the floor'],
     mistake: 'Sagging hips or sticking the bum in the air.',
     animationId: 'pushup',
-    substitutions: ['db-floor-press', 'db-bench-press'],
+    substitutions: ['db-floor-press', 'db-bench-press', 'incline-pushup', 'decline-pushup', 'diamond-pushup'],
   },
   {
     id: 'incline-db-press',
@@ -289,6 +295,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
   // --------------------------------------------------------- push, vertical
   {
     id: 'overhead-press',
+    classic: true,
     name: 'Overhead press',
     pattern: 'push',
     plane: 'vertical',
@@ -300,10 +307,11 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Squeeze glutes, ribs down', 'Move your head out of the way', 'Bar finishes over your ears'],
     mistake: 'Leaning back and pressing with the lower back.',
     animationId: 'overhead-press',
-    substitutions: ['db-shoulder-press', 'pike-pushup'],
+    substitutions: ['db-shoulder-press', 'pike-pushup', 'dip'],
   },
   {
     id: 'db-shoulder-press',
+    classic: true,
     name: 'Dumbbell shoulder press',
     pattern: 'push',
     plane: 'vertical',
@@ -315,7 +323,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Ribs down, glutes tight', 'Press up and slightly in', 'Lower to ear level'],
     mistake: 'Arching the lower back as the weights go up.',
     animationId: 'db-shoulder-press',
-    substitutions: ['overhead-press', 'pike-pushup'],
+    substitutions: ['overhead-press', 'pike-pushup', 'dip'],
   },
   {
     id: 'pike-pushup',
@@ -330,7 +338,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Hips high, head between hands', 'Lower the top of your head', 'Push the floor away'],
     mistake: 'Letting the hips sink so it turns into a push-up.',
     animationId: 'pike-pushup',
-    substitutions: ['db-shoulder-press', 'overhead-press'],
+    substitutions: ['db-shoulder-press', 'overhead-press', 'dip'],
   },
 
   // ---------------------------------------------------------- pull, vertical
@@ -347,7 +355,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Start from a full hang', 'Pull elbows down to your ribs', 'Chin over the bar'],
     mistake: 'Kipping or swinging instead of pulling smoothly.',
     animationId: 'pullup',
-    substitutions: ['lat-pulldown', 'band-pulldown', 'prone-lat-pull'],
+    substitutions: ['lat-pulldown', 'band-pulldown', 'prone-lat-pull', 'chin-up', 'negative-pullup'],
   },
   {
     id: 'lat-pulldown',
@@ -377,7 +385,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Reach tall with straight arms', 'Pull elbows down and back', 'Let the band up slowly'],
     mistake: 'Shrugging your shoulders up toward your ears.',
     animationId: 'band-pulldown',
-    substitutions: ['lat-pulldown', 'pullup', 'prone-lat-pull'],
+    substitutions: ['lat-pulldown', 'pullup', 'prone-lat-pull', 'chin-up'],
   },
   {
     id: 'prone-lat-pull',
@@ -398,6 +406,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
   // -------------------------------------------------------- pull, horizontal
   {
     id: 'barbell-row',
+    classic: true,
     name: 'Barbell row',
     pattern: 'pull',
     plane: 'horizontal',
@@ -413,6 +422,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
   },
   {
     id: 'db-row',
+    classic: true,
     name: 'One-arm dumbbell row',
     pattern: 'pull',
     plane: 'horizontal',
@@ -455,7 +465,7 @@ export const STRENGTH_EXERCISES: Exercise[] = [
     cues: ['Body in one straight line', 'Pull your chest to the bar', 'Squeeze shoulder blades together'],
     mistake: 'Letting the hips sag toward the floor.',
     animationId: 'inverted-row',
-    substitutions: ['band-row', 'db-row', 'cable-row'],
+    substitutions: ['band-row', 'db-row', 'cable-row', 'wide-inverted-row'],
   },
   {
     id: 'band-row',

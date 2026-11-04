@@ -46,16 +46,26 @@ npm run e2e          # end-to-end test in a phone-sized browser (needs a build f
 npm run screenshots  # regenerate docs/screenshots/
 ```
 
-## Putting it online later (not done yet, on purpose)
+## Putting it online (GitHub Pages)
 
-Nothing is deployed. When you decide, Vercel is the simplest option:
+The app is published with **GitHub Pages**, GitHub's free hosting, at:
 
-1. Push this repository to GitHub (it already is).
-2. Sign in at https://vercel.com with GitHub, choose **Add New → Project**, and pick this repository.
-3. Vercel detects Vite. Keep the defaults (build command `npm run build`, output folder `dist`) and press **Deploy**.
-4. Open the `https://…vercel.app` address on your iPhone in Safari, tap **Share → Add to Home Screen**. It now opens like an app and works offline.
+**https://groovejunior.github.io/fitness-app/**
+
+It updates by itself: every time something is merged into `main`, the workflow in `.github/workflows/pages.yml` runs the tests, builds the app and publishes it. That takes about 2 minutes. You can watch it under the repository's **Actions** tab.
+
+**One-time setup** (in the browser, on GitHub):
+1. Open the repository → **Settings** → **Pages**.
+2. Under **Build and deployment → Source**, choose **GitHub Actions**.
+3. Go to **Actions**, pick **Deploy to GitHub Pages**, press **Run workflow** (or just merge the next change).
+
+> The repository is private. GitHub Pages for private repositories needs a paid plan (GitHub Pro). On the free plan, make the repository public first (Settings → General → Danger Zone → Change visibility). Your training data is never in the repository. It stays on your phone.
+
+**On the iPhone:** open the address in **Safari**, tap **Share → Add to Home Screen**. It opens like an app and works offline after the first load.
 
 Your data stays on each device. If you switch phones, export a backup in Settings and import it on the new one.
+
+**Vercel instead?** Also works and keeps the repo private for free. Import the repo at vercel.com, keep the defaults and deploy. No `BASE_PATH` needed.
 
 ## Folder map
 

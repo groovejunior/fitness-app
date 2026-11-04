@@ -6,7 +6,7 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 
 ## 1. Agreed decisions (Nov 2026)
 - Phone web app (PWA), on-device storage (IndexedDB) with JSON backup, rule-based training engine behind a swappable `CoachEngine` interface, custom minimal line-art exercise animations, no motion tracking in v1.
-- **Do not deploy or publish anything.** Carlo decides hosting later.
+- **Hosting: GitHub Pages** (decided 2026-11-04), at https://groovejunior.github.io/fitness-app/, published by `.github/workflows/pages.yml` on every push to `main`. Don't publish anywhere else without Carlo asking.
 - Design: minimal, calm, one accent colour, light + dark mode, mobile-first.
 
 ## 2. How to work in this repo (for build sessions)
@@ -20,13 +20,13 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - No AI-sounding UI copy. Short, plain, human sentences.
 
 ## 3. Current status
-- 2026-11-04: v1 built on branch `claude/upbeat-hopper-k4123t` (PR open, not merged, nothing deployed). All screens from SPEC §5 exist: onboarding, Today, Plan (month + week), workout detail, workout mode (sets, rest timer, run interval timer), finish, Progress, Settings. Rule engine in `src/engine/` with 76 unit tests; Playwright e2e journey passes; screenshots in `docs/screenshots/`.
+- 2026-11-04: v1 merged into `main` (PR #2). GitHub Pages deploy workflow added (PR #3); Carlo still has to switch Pages on in the repo settings (and the repo must be public or on GitHub Pro). All screens from SPEC §5 exist: onboarding, Today, Plan (month + week), workout detail, workout mode (sets, rest timer, run interval timer), finish, Progress, Settings. Rule engine in `src/engine/` with 76 unit tests; Playwright e2e journey passes; screenshots in `docs/screenshots/`.
 - Exercise library: 89 exercises, each with a line-art animation on one shared stick-figure rig (`src/animations/rig.ts`).
 - Training style defaults to **bodyweight first** (Carlo's wish: calisthenics + a few classic lifts, no machines); changeable in Settings.
 - Not tested on a real iPhone yet; see `docs/KNOWN_ISSUES.md`.
 
 ## 4. Open questions for Carlo (later)
-- Hosting (Vercel?) and whether to add cloud sync.
+- Whether to add cloud sync.
 - Whether to add a Claude AI coach on top of the rule engine.
 - Which exercises/sports to add after using v1.
 
@@ -34,3 +34,4 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - 2026-11-04: Spec written from Carlo's brief; decisions agreed (PWA, local storage, rule engine, custom animations). Private repo created; cloud build session launched.
 - 2026-11-04: First full build of v1 (engine, library + animations, all screens, tests, docs, screenshots).
 - 2026-11-04: Carlo: "not a fan of machines, mainly bodyweight/calisthenics and a few simple classic exercises" → added training style (bodyweight first by default), 16 calisthenics moves, Progress tracks bodyweight lifts by reps.
+- 2026-11-04: Carlo chose GitHub Pages (like his other app). Added `BASE_PATH` support in `vite.config.ts` and a deploy workflow that runs the unit tests, builds and publishes on every push to `main`.

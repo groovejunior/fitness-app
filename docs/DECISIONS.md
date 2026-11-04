@@ -8,6 +8,10 @@ Key choices made while building v1, and why. Newest at the bottom of each sectio
 - **No chart library, no animation library.** Charts are small hand-drawn SVGs and motion is CSS. This keeps the bundle small and the look consistent.
 - **Framer Motion not used.** Plain CSS keyframes cover the subtle motion needed.
 
+## Hosting
+- **GitHub Pages**, at `groovejunior.github.io/fitness-app/`, chosen by Carlo to sit next to his other app. The build reads `BASE_PATH` (set to `/fitness-app/` by the workflow), so the manifest, service worker scope and asset URLs all live under that folder. Locally it stays `/`. Hash routes mean no server rewrites are needed; `404.html` is a copy of `index.html` as a safety net.
+- **The deploy workflow runs the unit tests first**, so a change that breaks the training rules never goes live. The e2e tests are not run in CI (they need a browser install); run `npm run e2e` locally.
+
 ## Engine (`src/engine/`)
 - **Pure, deterministic TypeScript.** No `Math.random`: variety comes from hashing stable inputs (block id, week number, slot). The same inputs always give the same plan, which makes it testable.
 - **`CoachEngine` interface** (`coach.ts`) is the only way the app reaches the engine. `RuleCoach` is the offline implementation, and a Claude-powered coach can implement the same interface later.

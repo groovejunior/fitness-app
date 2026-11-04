@@ -12,7 +12,7 @@ What isn't done, isn't tested, or is a known compromise.
 - The offline service worker has been built but not checked in airplane mode on a device. It needs an `https://` host to work at all.
 
 ## Training engine
-- **Rules are not yet pinned to papers.** `docs/TRAINING_KNOWLEDGE.md` lists the open sources we will use. Until that work is done, the coach is still "standard training practice," not a cited review. Settings is honest about that.
+- **Rules are not yet pinned to papers.** The six sources are chosen (`docs/TRAINING_KNOWLEDGE.md`) and listed in Settings. Until the engine cites them, the coach is still the original rule set.
 - **The +10% weekly run cap is a coaching habit, not a proven injury law.** Buist 2008 found no injury benefit vs a faster build. We keep a gentle cap so weeks don't explode; we should not claim it prevents injuries.
 - **Pace guidance is effort-based** (talk test) until some easy runs with distance are logged. There are no heart-rate zones.
 - **No automatic weight for a lift's first session.** The app says "pick a weight you could lift 2–3 more reps with".

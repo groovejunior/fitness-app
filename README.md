@@ -15,7 +15,7 @@ Everything is stored on the phone itself. There's no account and no server. A ba
 - **Progress**: a calendar of done vs planned sessions, a streak, lift history with estimated 1-rep max, running distance and pace, and weekly sets per muscle group.
 - **Settings**: profile, units, theme (system / light / dark), backup export/import and reset.
 
-The training rules (progressive overload, 80/20 running, recovery spacing, deload weeks) live in `src/engine/`. That code is plain logic with no screen code in it, and it has unit tests. `docs/DECISIONS.md` explains the choices. The next step for those rules is to pin each one to an open paper or guideline; see `docs/TRAINING_KNOWLEDGE.md`.
+The training rules (progressive overload, 80/20 running, recovery spacing, deload weeks) live in `src/engine/`. That code is plain logic with no screen code in it, and it has unit tests. `docs/DECISIONS.md` explains the choices. The next step is to pin those rules to six open sources (Australian guidelines, a 2023 gym-dose review, the ACSM progression stand, Seiler on easy running, the Olympic load consensus, and a push-up progression study). The full list is `docs/TRAINING_KNOWLEDGE.md`.
 
 ## Run it on your computer
 

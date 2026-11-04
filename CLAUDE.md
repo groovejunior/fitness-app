@@ -24,14 +24,14 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - Exercise library: 89 exercises, each with a line-art animation on one shared stick-figure rig (`src/animations/rig.ts`).
 - Training style defaults to **bodyweight first** (Carlo's wish: calisthenics + a few classic lifts, no machines); changeable in Settings.
 - Bottom sheets: grabber bar now drags (or taps) to dismiss.
-- Training knowledge: agreed path is a **cited rulebook** (open papers/guidelines, not live AI and not copyrighted books in the repo). Sources and the fold-in plan are in `docs/TRAINING_KNOWLEDGE.md`. Engine rules are not cited yet. Settings has a "Where the plan comes from" note.
+- Training knowledge: cited rulebook confirmed. The six sources that should drive the coach are listed in Settings and in `docs/TRAINING_KNOWLEDGE.md` (Australian guidelines, Currier 2023, ACSM 2009 progression, Seiler, IOC load consensus, Kotarsky 2018). Engine rules are not rewritten to cite them yet.
 - Not tested on a real iPhone yet; see `docs/KNOWN_ISSUES.md`.
 
 ## 4. Open questions for Carlo (later)
 - Whether to add cloud sync.
 - Whether to add a Claude AI coach on top of the rule engine.
 - Which exercises/sports to add after using v1.
-- Confirm the cited-rulebook path, then encode sources into the engine one family of rules at a time (gym progression, running mix, rest times, bodyweight variations).
+- Encode the six chosen sources into the engine, one family of rules at a time (gym dose, adding load, bodyweight variations, rest, running mix, the lighter week).
 
 ## 5. Session log
 - 2026-11-04: Spec written from Carlo's brief; decisions agreed (PWA, local storage, rule engine, custom animations). Private repo created; cloud build session launched.
@@ -39,3 +39,4 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - 2026-11-04: Carlo: "not a fan of machines, mainly bodyweight/calisthenics and a few simple classic exercises" → added training style (bodyweight first by default), 16 calisthenics moves, Progress tracks bodyweight lifts by reps.
 - 2026-11-04: Carlo chose GitHub Pages (like his other app). Added `BASE_PATH` support in `vite.config.ts` and a deploy workflow that runs the unit tests, builds and publishes on every push to `main`.
 - 2026-11-04: Sheet grabber bar now dismisses (drag / flick / tap). Training knowledge: research into open sources; decision is a cited rulebook (`docs/TRAINING_KNOWLEDGE.md`); Settings explains it. Engine not rewritten yet.
+- 2026-11-05: Sheet-grabber PR merged. Deeper source pass: six sources chosen to drive the coach (Australian guidelines, Currier 2023, ACSM 2009, Seiler, IOC 2016, Kotarsky 2018). Written up in `docs/TRAINING_KNOWLEDGE.md` and shown in Settings. Engine still not rewritten.

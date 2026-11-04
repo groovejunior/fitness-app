@@ -1,99 +1,59 @@
-# Where the training knowledge should come from
+# Where the training knowledge comes from
 
-Carlo asked: the first draft uses general training knowledge. Can we do deep research, find open books and papers, and build the coach on that instead?
+Carlo asked to stop using unnamed "general training knowledge" and build the coach on open science. He confirmed the **cited rulebook**: the coach stays a set of rules on the phone, and each rule points at a published source.
 
-Short answer: **yes, and the right way is a cited rulebook** — keep the same kind of coach (fast, offline, predictable), but pin each rule to a published source. Do not paste copyrighted books into the app, and do not ask an AI to invent a new plan from the internet every week.
+This note is the research pass (5 Nov 2026). It lists what is worth reading, then the short set that should actually drive the app.
 
-## What we have today
+Nothing here is copied out of a book. We link. We do not paste.
 
-The coach in `src/engine/` is a set of rules. They match common good practice:
+## What should go into the app
 
-- Add a little over time (progressive overload).
-- Most running stays easy; one or two sessions a week are quality work.
-- Hard days are spaced; sport counts as load.
-- Week 4 of a block is lighter.
-- Bodyweight moves lead; a few classic lifts cover legs.
+Six sources. They cover the decisions the coach actually makes, they are free to read, and they do not fight each other. Settings shows this same list.
 
-Those rules are not yet tied to named papers. That is the gap. The app already has a clean seam (`CoachEngine`) so we can change the rules without rebuilding the screens.
+| What it decides | Source |
+|---|---|
+| The health floor: muscle work on 2 or more days, about 30 minutes of harder activity on most days, less sitting | [Australian 24-hour movement guidelines](https://www.health.gov.au/topics/physical-activity/24-hour-movement-guidelines-for-all-australians/recommendations-for-adults-18-to-64-years) for adults 18–64. Athletic and strength goals sit above this floor, not instead of it. |
+| How a gym week is built: several sets, heavier work when the goal is strength, about twice a week per muscle for size and up to three for strength. Every sensible program beats doing nothing | [Currier and colleagues, 2023](https://bjsm.bmj.com/content/57/18/1211), *British Journal of Sports Medicine*. Open. 178 strength trials, 119 muscle-size trials. |
+| When to add load: if you can do 1–2 reps past the target, add roughly 2–10%. Beginners live around 8–12 reps. Big exercises before small ones | [ACSM position stand, 2009](https://doi.org/10.1249/mss.0b013e3181915670), *Progression Models in Resistance Training for Healthy Adults*. Read with the [2025 ACSM overview of reviews](https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/), which updates it: going to failure is not required, and the equipment (bar, dumbbell, bodyweight) is not what decides the result. |
+| Most running stays easy enough to talk. One harder session is enough until you run a lot | [Seiler, 2009](https://sportscience.sportsci.org/2009/ss.htm), free. "Easy" means the [talk test](https://pubmed.ncbi.nlm.nih.gov/15354048/) (Persinger, Foster and colleagues, 2004): full sentences means you are under the first threshold. |
+| Do not jump the weekly load. Tennis, skiing and gym all count. A lighter week is allowed; a sudden spike is the thing to avoid | [IOC consensus, 2016](https://bjsm.bmj.com/content/50/17/1030) (Soligard and colleagues), plus the [AIS note on reloading after a break](https://www.ausport.gov.au/ais/position_statements/training-load-in-relation-to-loading-and-unloading-phases-of-training). |
+| When bodyweight reps get easy, make the movement harder, not just slower | [Kotarsky and colleagues, 2018](https://journals.lww.com/nsca-jscr/fulltext/2018/03000/effect_of_progressive_calisthenic_push_up_training.9.aspx): progressive push-ups built strength about as well as bench press in a short trial. |
 
-## The options
+Two papers sit behind those six and should be cited in the engine, not as extra buttons:
 
-### 1. Cited rulebook (recommended)
+- [Lopez and colleagues, 2021](https://pmc.ncbi.nlm.nih.gov/articles/PMC8126497/) (open). Muscle size is similar across light and heavy loads if the sets are hard. Strength prefers heavier loads. That is why bodyweight-first is legitimate, and why squats and deadlifts stay barbell once a bodyweight squat is easy.
+- [Grgic and colleagues, 2017](https://pubmed.ncbi.nlm.nih.gov/28933024/) and [Singer and colleagues, 2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC11349676/) (the second is open). Beginners can rest 1–2 minutes. Trained lifters get more strength from rests over 2 minutes on the main lifts. For muscle size, little is gained by resting past about 90 seconds.
 
-Keep the rule engine. For each rule, write down the source, in one plain sentence, and a link. Where the evidence is thin or mixed, say so instead of dressing a habit up as science.
+WHO's [2020 guidelines](https://www.who.int/publications/i/item/9789240015128) say the same health floor as the Australian ones (150–300 minutes of moderate activity a week, or 75–150 vigorous, plus muscle work twice a week). We follow the Australian page in the app. WHO is the backup citation, not a second rule.
 
-Then, one rule at a time, check the code against the paper. If they disagree, change the code (or keep the rule and write why).
+## What we read and will not encode
 
-**Why this fits the app:** it stays offline, instant, and testable. You can open a workout and later tap “why this looks like that.” A Claude coach, if we add one, can read the same notes instead of guessing.
+These are real, and they are the wrong thing to hard-code.
 
-### 2. Drop open books in and let an AI read them live
+- **The exact "add 10% running each week" rule.** [Buist and colleagues, 2008](https://pubmed.ncbi.nlm.nih.gov/17940147/) randomised novice runners. A graded plan and a faster plan had the same injury rate, about 21%. A later review ([PMC6253751](https://pmc.ncbi.nlm.nih.gov/articles/PMC6253751/)) found no safe weekly percentage. The IOC sentence we *do* encode is the honest one: avoid a sudden jump. The app can keep a gentle cap so a week cannot double. The screen must not call 10% an injury law.
+- **A fixed deload as a way to grow more.** Coaches often lighten a week every 4–6 weeks ([Bell and colleagues, 2022](https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2022.1073223/full), open). A trial that *stopped* training for a week in the middle of nine weeks did not grow more muscle, and grew less strength ([Coleman and colleagues, 2024](https://doi.org/10.7717/peerj.16777), open). So week 4 stays a lighter week (fewer sets, a bit less load), not a week off, and we do not claim it builds extra muscle.
+- **Polarised training as a law for new runners.** [Silva and colleagues, 2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC11329428/) (open) found a small fitness edge for an 80/20 split, mostly in already-trained athletes and in short studies. Race-style performance was similar to other mixes. A 2025 review of individual results suggested recreational athletes may do just as well with a pyramidal mix (mostly easy, some steady, a little hard). Our default — mostly easy, one quality session until you run four times a week — matches that caution.
+- **Fancy set-counting.** A 2024 dose-response analysis (Pelland and colleagues, later indexed on PubMed) says more weekly sets mean more growth, with diminishing returns, and that a set which only brushes a muscle should count as half. Useful to know. Too fussy to code. Currier already says "use several sets."
+- **Periodisation brands** (linear vs daily undulating, Bompa's books). When the total work is the same, [Moesgaard and colleagues, 2022](https://pubmed.ncbi.nlm.nih.gov/35044672/) found a modest strength edge for planned variation, and no edge for muscle size. Untrained people did not benefit from the complicated version. A simple month that builds and then lightens is enough.
+- **ESSA position statements.** Exercise & Sports Science Australia is the local professional body, and their statements are good. The ones on the public list are for diabetes, bone health, obesity and similar. They are not the default plan for a healthy student. If a condition shows up later, we pull the matching statement in.
+- **Nutrition stands** (ISSN protein, 1.4–2.0 g per kg). Solid, open, and out of scope. The app does not coach food.
+- **Copyrighted coaching books** — *Starting Strength*, *Practical Programming*, *Overcoming Gravity*, Bompa, the NSCA textbook, Renaissance Periodization, Stronger by Science programs. Fine to read. Not ours to copy. If a book and a paper agree, the paper is what we cite.
+- **Open physiology textbooks**, including MacIntosh's [*Open Textbook of Exercise Physiology*](https://pressbooks.openeducationalberta.ca/otep/) (CC BY-NC). They explain bodies. They do not write the week.
+- **The acute:chronic workload ratio** (the "0.8 to 1.3" number in the IOC paper). It came from a few team sports and has not held up as a personal injury predictor. We keep the plain warning, not the ratio.
+- **A magic push/pull/squat/hinge ratio.** ACSM says cover the big movement patterns and do the hard compound lifts first. The templates in the app are how we do that. No paper says the counts must match.
 
-Possible later, not as the base. It needs the network, answers can drift, and it fights the “works on the phone with no account” design. Use this only as an extra explainer on top of option 1.
+## What changes in the rules, once we encode this
 
-### 3. Build on famous coaching books
+Not done yet. One family at a time, with you able to see the diff:
 
-Books such as *Starting Strength*, *Practical Programming*, *Overcoming Gravity*, Bompa’s periodization texts, or Helms’s hypertrophy pyramid are useful to **read**. They are not free to copy. We must not put their text, tables, or programs in the repo. If a book and a paper say the same thing, we cite the paper.
-
-The one open textbook worth keeping on the shelf is MacIntosh’s *[Open Textbook of Exercise Physiology](https://pressbooks.openeducationalberta.ca/otep/)* (CC BY-NC). It is physiology, not a training program, so it backs *why* a rule works rather than *what* the week contains.
-
-### 4. Re-research the literature every time you open the app
-
-Slow, expensive, inconsistent, and useless on a plane. A one-off literature pass (this document) is the research step. Encoding it is the product step.
-
-## The source library (all free to read)
-
-We only pin rules to things we can link. Order: official guidelines first, then consensus reviews, then specific trials.
-
-### Health minimums (the floor)
-
-- **Australian 24-hour movement guidelines** (Department of Health, 2026 update). Adults: 30 minutes most days, muscle-strengthening on 2+ days, some balance/coordination work, less sitting. [Guidelines](https://www.health.gov.au/topics/physical-activity/24-hour-movement-guidelines-for-all-australians/recommendations-for-adults-18-to-64-years).
-- **WHO 2020 guidelines on physical activity and sedentary behaviour.** Same idea globally: 150–300 minutes moderate aerobic work a week (or 75–150 vigorous), plus muscle strengthening on 2+ days. CC BY-NC-SA. [WHO page](https://www.who.int/publications/i/item/9789240015128).
-
-These set the floor for a “health” goal. Your athletic/strength goals sit *on top* of this, not instead of it.
-
-### Gym and bodyweight
-
-- **ACSM 2009 position stand**, *Progression Models in Resistance Training for Healthy Adults* (Ratamess et al.). The classic “how to add load” paper: novices 8–12 reps, 2–3 days/week; when you can do 1–2 reps over the target, add about 2–10% load; sequence big moves before small ones. [DOI](https://doi.org/10.1249/mss.0b013e3181915670).
-- **ACSM 2025 overview of reviews**, *Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults*. Updates the 2009 stand. Strength likes heavier loads and 2–3 sets, 2+ sessions/week; size likes higher weekly set counts; training to failure is not required. Open on PMC: [PMC12965823](https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/).
-- **ACSM 2011 position stand**, *Quantity and Quality of Exercise…* (Garber et al.). Cardio + strength + neuromotor (balance/agility) + some mobility. [DOI](https://doi.org/10.1249/mss.0b013e318213fefb).
-- **Schoenfeld, Ogborn & Krieger 2016**, volume and hypertrophy: more weekly sets → more growth, with diminishing returns. [PubMed](https://pubmed.ncbi.nlm.nih.gov/27433992/).
-- **Schoenfeld, Ogborn & Krieger 2016**, frequency: train a muscle at least twice a week if you care about size. [PubMed](https://pubmed.ncbi.nlm.nih.gov/27102172/). A 2019 follow-up found that once weekly volume is equated, frequency itself matters less — so full-body three times a week and upper/lower both fine. [PubMed](https://pubmed.ncbi.nlm.nih.gov/30558493/).
-- **Grgic, Schoenfeld et al. 2017**, rest between sets: short rests still build strength; trained people gain more with 2+ minutes on the main lifts. [PubMed](https://pubmed.ncbi.nlm.nih.gov/28933024/).
-- **Singer et al. 2024**, rest and size: a small extra benefit past 60 seconds, little extra past 90. Open: [PMC11349676](https://pmc.ncbi.nlm.nih.gov/articles/PMC11349676/).
-- **Kotarsky et al. 2018**, progressive push-up variations vs bench press: harder bodyweight versions *are* a real progression, not just a workaround. [JSCR](https://journals.lww.com/nsca-jscr/fulltext/2018/03000/effect_of_progressive_calisthenic_push_up_training.9.aspx).
-- **Grgic et al. 2022**, training to failure vs stopping a little short: not required for strength or size. Open: [PMC9068575](https://pmc.ncbi.nlm.nih.gov/articles/PMC9068575/).
-
-There is no good open textbook that *is* a calisthenics program. Bodyweight work uses the same physics as any other resistance training (overload, enough hard sets, progress the move when reps get easy). That is why we keep barbell squats/deadlifts for legs: once a bodyweight squat is easy, it stops being a strength stimulus. The 2025 ACSM overview says the same in other words — load and volume matter more than the toy you hold.
-
-### Running
-
-- **Seiler & Kjerland 2006** and **Seiler 2009**, *Intervals, Thresholds, and Long Slow Distance*. About 80% of endurance sessions stay easy (you can talk); the rest are quality. Free: [sportsci.org](https://sportscience.sportsci.org/2009/ss.htm).
-- **Talk test** as an effort guide is the honest stand-in until we have heart-rate or pace data. It maps onto Seiler’s zone 1 reasonably well.
-
-### The 10% running rule (be honest)
-
-The app currently caps weekly run minutes at about +10%. That is a common coaching habit. It is **not** a law.
-
-Buist et al. 2008 (GRONORUN) randomised novice runners to a 10%-ish build vs a faster 8-week plan. Injury rates were the same (~21%). A later review (Nielsen / PMC6253751) said there is no clear safe weekly jump. So: keep a gentle cap so weeks do not explode, but do not tell you it is proven to prevent injury. Sudden spikes still look unwise; the exact 10% number is a convention.
-
-## How we should fold this in (next sessions)
-
-1. **Do not rewrite the engine in one go.** Change one family of rules at a time (first: gym progression and weekly set counts; then running intensity mix; then rest times; then deload).
-2. **Each rule gets a source id** in the engine, plus a one-line reason the screens can show.
-3. **Where we already match**, just cite. Double progression is the ACSM “add 2–10% when you overshoot the RM” idea in another costume. 80/20 running is Seiler. Muscle-strengthening twice a week is WHO + Australian guidelines.
-4. **Where we might change**, check with you first:
-   - Rest on main lifts may be a bit short for strength (papers lean 2+ minutes once you are trained).
-   - Bodyweight progressions should move to a harder variation when reps top out, not only “slow the lowering.”
-   - The 10% run cap stays as a comfort brake, with honest copy.
-5. **A “Why this?” line** on the workout and week, in the same quiet tone as the rest of the app. Not a bibliography on every card.
-
-## What we will not do
-
-- Copy or reconstruct copyrighted books.
-- Claim the first draft was already a literature review. It was not.
-- Swap the offline coach for a live chatbot.
-- Pretend there is a perfect paper for every choice. Some calls (which accessory, which run on Tuesday) are logistics, not science.
+1. **Gym dose.** Keep multiple sets. Point weekly frequency and "main lifts before accessories" at Currier 2023 and ACSM 2009. Muscle groups land about twice a week when the calendar allows.
+2. **Adding load.** Keep double progression. Cite ACSM's 2–10% step. Stop implying you must grind to failure.
+3. **Bodyweight.** When reps hit the top of the range, offer a harder variation (Kotarsky), not only "slow the lowering." Keep barbell squats and deadlifts as the leg strength lifts (Lopez).
+4. **Rest.** Beginners stay near 90 seconds. Past beginner, main strength lifts rest closer to 2 minutes.
+5. **Running.** Keep mostly easy, talk-test cues, one quality session for beginners. Soften the 10% copy. A second quality session only when there is enough easy running around it.
+6. **Week 4.** Keep it lighter, and say it is there to avoid a spike, not because a rest week grows more muscle.
+7. **Each rule gets a source id** the screen can show in one sentence. No bibliography on the workout card.
 
 ## Status
 
-2026-11-04: sources chosen and written up. The engine is **not** cited yet. Settings now has a short “Where the plan comes from” note so this is visible in the app. Encoding the citations into the rules is the next training-engine session.
+2026-11-05: research done, shortlist chosen, Settings lists it. The engine rules are still the original ones. Encoding is the next training-engine session.

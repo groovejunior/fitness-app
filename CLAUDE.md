@@ -20,12 +20,22 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - No AI-sounding UI copy. Short, plain, human sentences.
 
 ## 3. Current status
-- 2026-11-04: Repo created with spec. First full build running as a cloud session.
+- 2026-11-04: **v1 built**, PR open from `feat/v1` to `main` (not merged, nothing deployed).
+  - All screens from SPEC §5: onboarding, Today, Plan (month roadmap + week planner), workout detail, active workout (sets, rest timer, run interval timer, wake lock), finish, Progress, Settings.
+  - Rule engine in `src/engine/` behind `CoachEngine`; 87 unit tests. Playwright e2e (full journey, run session, offline) passes.
+  - 57 exercises with line-art animations from one renderer (`src/anim/`).
+  - Training style defaults to **bodyweight first** (Carlo's wish), changeable in Settings.
+  - Screenshots in `docs/screenshots/`. Not tested on a real iPhone yet: see `docs/KNOWN_ISSUES.md`.
+- A second, parallel build session (branch `claude/upbeat-hopper-k4123t`) was stopped at Carlo's request; its new ideas were ported here. That branch is reference only.
 
 ## 4. Open questions for Carlo (later)
 - Hosting (Vercel?) and whether to add cloud sync.
 - Whether to add a Claude AI coach on top of the rule engine.
 - Which exercises/sports to add after using v1.
+- Confirm engine defaults in `docs/KNOWN_ISSUES.md` ("Engine choices to confirm"), e.g. one quality run with 3 runs + 2–3 gym days.
+- Should "bodyweight first" also replace barbell squats/deadlifts for legs?
 
 ## 5. Session log
 - 2026-11-04: Spec written from Carlo's brief; decisions agreed (PWA, local storage, rule engine, custom animations). Private repo created; cloud build session launched.
+- 2026-11-04: First full build of v1: engine, data layer, design system, 42 exercises + animations, all screens, unit + e2e tests, PWA, docs, screenshots.
+- 2026-11-04: Carlo: bodyweight/calisthenics first, a few classic lifts, no machines → training style setting (default bodyweight first), 15 more calisthenics moves with harder-variation ladders, Progress tracks bodyweight lifts by reps. Parallel duplicate session stopped; its additions ported.

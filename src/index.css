@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+/*
+  Design tokens. One accent colour (jade). Everything else is warm neutrals.
+  Light is the default; `.dark` on <html> switches to dark.
+*/
+:root {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #efeee9;
+  --ink: #17181a;
+  --ink-2: #5d5f63;
+  --ink-3: #9a9b9e;
+  --line: #e4e2dc;
+  --accent: #1f7a5c;
+  --accent-press: #186349;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2f0ea;
+  --warn: #9a5b12;
+  --warn-soft: #f8ecd9;
+  --danger: #b3261e;
+  --shadow: 0 1px 2px rgb(23 24 26 / 0.04), 0 4px 16px rgb(23 24 26 / 0.05);
+  --shadow-lg: 0 8px 40px rgb(23 24 26 / 0.12);
+  color-scheme: light;
+}
+
+:root.dark {
+  --bg: #111214;
+  --surface: #1a1b1e;
+  --surface-2: #242529;
+  --ink: #f2f1ee;
+  --ink-2: #a8a9ad;
+  --ink-3: #6c6d72;
+  --line: #2c2d31;
+  --accent: #4cc497;
+  --accent-press: #3aa880;
+  --accent-ink: #0b1f17;
+  --accent-soft: #17302a;
+  --warn: #e5a855;
+  --warn-soft: #33281a;
+  --danger: #f2827a;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 8px 40px rgb(0 0 0 / 0.5);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-press: var(--accent-press);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+
+  /* Type scale: size / line-height / tracking */
+  --text-display: 2.125rem;
+  --text-display--line-height: 2.5rem;
+  --text-display--letter-spacing: -0.02em;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.75rem;
+  --text-title--letter-spacing: -0.015em;
+  --text-headline: 1.0625rem;
+  --text-headline--line-height: 1.5rem;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.375rem;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.125rem;
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 0.875rem;
+  --text-micro--letter-spacing: 0.06em;
+  --text-numeral: 3.5rem;
+  --text-numeral--line-height: 1;
+  --text-numeral--letter-spacing: -0.03em;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --shadow-soft: var(--shadow);
+  --shadow-float: var(--shadow-lg);
+
+  --ease-calm: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+  button {
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-up { animation: fade-up 320ms var(--ease-calm) both; }
+.animate-sheet-in { animation: sheet-in 360ms var(--ease-calm) both; }
+.animate-fade-in { animation: fade-in 240ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up, .animate-sheet-in, .animate-fade-in { animation: none; }
+}

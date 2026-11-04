@@ -64,7 +64,7 @@ Every time `main` changes on GitHub, Vercel rebuilds automatically. Your trainin
 | Folder | What's inside |
 |---|---|
 | `src/engine/` | The "coach": all training logic (month plans, week layout, workouts, progression, running plans, stats). Pure TypeScript, no screens, fully unit-tested. Behind one interface (`CoachEngine` in `coach.ts`), so an AI coach could replace it later. |
-| `src/content/` | The exercise library (42 exercises with cues and swaps) and the list of sports. |
+| `src/content/` | The exercise library (57 exercises with cues and swaps) and the list of sports. |
 | `src/anim/` | The line-art exercise animations: a small renderer plus pose data per exercise. See `docs/ANIMATION_STYLE.md`. |
 | `src/data/` | Storage on the phone (Dexie / IndexedDB), backup and restore. |
 | `src/ui/`, `src/components/` | The design system: colours, type, buttons, cards, sheets, tab bar. |

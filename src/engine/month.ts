@@ -148,7 +148,7 @@ export function checkRealism(requested: Targets, availability: WeekAvailability,
   const ok = fits(f);
   const tight = ok && (f.days === Math.min(f.availableDays, f.maxDays) || f.load > f.capacity * 0.85 || f.minutesNeeded > f.minutesAvailable * 0.85);
   const level: RealismReport['level'] = !ok || changed ? 'over' : tight ? 'tight' : 'ok';
-  if (level === 'tight' && issues.length === 0) issues.push('This fits, but only just. Expect some weeks to need moving things around.');
+  if (level === 'tight' && issues.length === 0) issues.push('Expect some weeks to need moving things around.');
   return { level, issues: level === 'ok' ? [] : issues, suggestion };
 }
 

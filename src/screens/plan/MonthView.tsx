@@ -99,13 +99,13 @@ export default function MonthView() {
         </Card>
 
         {realismBad && (
-          <Notice title={`You asked for ${targetsSummary(block.requested, profile)}`}>
+          <Notice title={block.realism.level === 'over' ? `You asked for ${targetsSummary(block.requested, profile)}` : 'This fits, but only just'}>
             <ul className="space-y-1">
               {block.realism.issues.map((s) => (
                 <li key={s}>{s}</li>
               ))}
             </ul>
-            <p className="mt-1">The recommended plan below fits.</p>
+            {block.realism.level === 'over' && <p className="mt-1">The recommended plan below fits.</p>}
           </Notice>
         )}
 

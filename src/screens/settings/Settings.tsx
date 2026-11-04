@@ -198,8 +198,8 @@ export default function Settings() {
           <div className="space-y-5">
             <TextField label="Your name" value={draft.name} onChange={(e) => patch({ name: e.target.value })} />
             <div className="grid grid-cols-2 gap-3">
-              <TextField label="Age (optional)" inputMode="numeric" value={ageText} onChange={(e) => setAgeText(e.target.value)} />
-              <TextField label={`Body weight, ${weightLabel(units)} (optional)`} inputMode="decimal" value={weightText} onChange={(e) => setWeightText(e.target.value)} />
+              <TextField label="Age" inputMode="numeric" value={ageText} onChange={(e) => setAgeText(e.target.value)} />
+              <TextField label={`Weight (${weightLabel(units)})`} inputMode="decimal" value={weightText} onChange={(e) => setWeightText(e.target.value)} />
             </div>
             <div>
               <p className="mb-2 px-1 text-caption font-medium text-ink-2">Goal</p>
@@ -243,7 +243,13 @@ export default function Settings() {
             </div>
             <div>
               <p className="mb-2 px-1 text-caption font-medium text-ink-2">Default equipment</p>
-              <Segmented ariaLabel="Default equipment" options={equipmentOptions} value={draft.defaultEquipment} onChange={(v) => patch({ defaultEquipment: v })} />
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Default equipment">
+                {equipmentOptions.map((o) => (
+                  <Chip key={o.value} selected={draft.defaultEquipment === o.value} onClick={() => patch({ defaultEquipment: o.value })}>
+                    {o.label}
+                  </Chip>
+                ))}
+              </div>
             </div>
             <Button block size="lg" onClick={saveEdit}>
               Save

@@ -119,7 +119,7 @@ export default function Onboarding() {
         </div>
       </div>
 
-      <main key={step} className="animate-fade-up flex-1 px-5 pt-6 pb-6">
+      <main key={step} className="animate-fade-up flex-1 px-5 pt-6 pb-10">
         {step === 0 && (
           <section>
             <h1 className="font-display text-display font-bold">Welcome</h1>
@@ -242,7 +242,13 @@ export default function Onboarding() {
               <Toggle checked={gymAccess} onChange={setGym} label="Gym nearby" />
             </div>
             <p className="mt-6 mb-2 px-1 text-caption font-medium text-ink-2">Where do you usually train?</p>
-            <Segmented ariaLabel="Default equipment" options={equipmentOptions} value={draft.defaultEquipment} onChange={setEquipment} />
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Default equipment">
+              {equipmentOptions.map((o) => (
+                <Chip key={o.value} selected={draft.defaultEquipment === o.value} onClick={() => setEquipment(o.value)}>
+                  {o.label}
+                </Chip>
+              ))}
+            </div>
           </section>
         )}
 

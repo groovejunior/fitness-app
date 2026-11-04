@@ -9,7 +9,7 @@ export const benchPress: Clip = {
   props: [{ kind: 'bench', x1: 14, x2: 62, y: 67 }, { kind: 'barbell', at: 'wristNear' }],
   keyframes: [
     { pose: { hip: [52, 63], torso: -90, armNear: [180, 180], legNear: [61, -20] }, hold: 400, move: 1000 },
-    { pose: { hip: [52, 63], torso: -90, armNear: [100, 175], legNear: [61, -20] }, hold: 300, move: 900 },
+    { pose: { hip: [52, 63], torso: -90, armNear: [75, 178], legNear: [61, -20] }, hold: 300, move: 900 },
   ],
   still: 0,
 };
@@ -20,7 +20,7 @@ export const dbBenchPress: Clip = {
   props: [{ kind: 'bench', x1: 14, x2: 62, y: 67 }, { kind: 'dumbbell', at: 'wristNear' }],
   keyframes: [
     { pose: { hip: [52, 63], torso: -90, armNear: [180, 180], legNear: [61, -20] }, hold: 400, move: 1000 },
-    { pose: { hip: [52, 63], torso: -90, armNear: [95, 170], legNear: [61, -20] }, hold: 300, move: 900 },
+    { pose: { hip: [52, 63], torso: -90, armNear: [70, 175], legNear: [61, -20] }, hold: 300, move: 900 },
   ],
   still: 0,
 };
@@ -29,10 +29,10 @@ export const dbBenchPress: Clip = {
 export const dip: Clip = {
   id: 'dip',
   anchor: { joint: 'wristNear', at: [40, 48] },
-  props: [{ kind: 'bar', at: [40, 48] }],
+  props: [{ kind: 'bar', at: [40, 50.5] }],
   keyframes: [
-    { pose: { torso: 170, armNear: [0, 0], legNear: [25, -50] }, hold: 400, move: 1000 },
-    { pose: { torso: 155, armNear: [-80, 5], legNear: [25, -50] }, hold: 300, move: 900 },
+    { pose: { torso: 172, armNear: [0, 0], legNear: [5, -80], footNear: 0 }, hold: 400, move: 1000 },
+    { pose: { torso: 165, armNear: [-80, 5], legNear: [5, -80], footNear: 0 }, hold: 300, move: 900 },
   ],
   still: 0,
 };
@@ -41,10 +41,10 @@ export const dip: Clip = {
 export const overheadPress: Clip = {
   id: 'overhead-press',
   anchor: { joint: 'ankleNear', at: [44, 92] },
-  props: [{ kind: 'barbell', at: 'wristNear' }],
+  props: [{ kind: 'barbell', at: 'wristNear', offset: [0, 5] }],
   keyframes: [
-    { pose: { torso: 180, armNear: [40, 180], legNear: [32, -32] }, hold: 400, move: 1000 },
-    { pose: { torso: 180, armNear: [175, 175], legNear: [32, -32] }, hold: 400, move: 1000 },
+    { pose: { torso: 180, armNear: [40, 180], legNear: [35, -35] }, hold: 400, move: 1000 },
+    { pose: { torso: 180, armNear: [176, 178], legNear: [35, -35] }, hold: 400, move: 1000 },
   ],
   still: 1,
 };
@@ -52,10 +52,10 @@ export const overheadPress: Clip = {
 export const dbShoulderPress: Clip = {
   id: 'db-shoulder-press',
   anchor: { joint: 'ankleNear', at: [44, 92] },
-  props: [{ kind: 'dumbbell', at: 'wristNear' }],
+  props: [{ kind: 'dumbbell', at: 'wristNear', offset: [0, 1.5] }],
   keyframes: [
-    { pose: { torso: 180, armNear: [40, 180], legNear: [32, -32] }, hold: 400, move: 1000 },
-    { pose: { torso: 180, armNear: [175, 175], legNear: [32, -32] }, hold: 400, move: 1000 },
+    { pose: { torso: 180, armNear: [40, 180], legNear: [35, -35] }, hold: 400, move: 1000 },
+    { pose: { torso: 180, armNear: [176, 178], legNear: [35, -35] }, hold: 400, move: 1000 },
   ],
   still: 1,
 };
@@ -65,18 +65,18 @@ export const pikePushUp: Clip = {
   anchor: { joint: 'toeNear', at: [14, 92] },
   keyframes: [
     { pose: { torso: 25, head: 30, armNear: [39, 39], legNear: [-15, -15], footNear: 20 }, hold: 350, move: 1000 },
-    { pose: { torso: 32, head: 60, armNear: [-43, 61], legNear: [-36, -36], footNear: 20 }, hold: 250, move: 900 },
+    { pose: { torso: 39, head: 70, armNear: [-31, 50], legNear: [-30, -30], footNear: 20 }, hold: 250, move: 900 },
   ],
   still: 0,
 };
 
 export const pullUp: Clip = {
   id: 'pull-up',
-  anchor: { joint: 'wristNear', at: [50, 10] },
-  props: [{ kind: 'bar', at: [50, 9] }],
+  anchor: { joint: 'wristNear', at: [50, 13] },
+  props: [{ kind: 'bar', at: [50, 11] }],
   keyframes: [
-    { pose: { torso: 180, armNear: [180, 180], legNear: [15, -75] }, hold: 400, move: 1100 },
-    { pose: { torso: 170, armNear: [-37, 175], legNear: [10, -70] }, hold: 300, move: 900 },
+    { pose: { torso: 180, armNear: [180, 180], legNear: [70, -45] }, hold: 400, move: 1100 },
+    { pose: { torso: 170, armNear: [-37, 175], legNear: [70, -45] }, hold: 300, move: 900 },
   ],
   still: 1,
 };
@@ -95,11 +95,11 @@ export const latPulldown: Clip = {
 
 export const seatedCableRow: Clip = {
   id: 'seated-cable-row',
-  anchor: { joint: 'hip', at: [30, 85] },
-  props: [{ kind: 'cable', from: [97, 60], to: 'wristNear' }],
+  anchor: { joint: 'hip', at: [30, 87] },
+  props: [{ kind: 'cable', from: [97, 62], to: 'wristNear' }],
   keyframes: [
-    { pose: { hip: [30, 85], torso: 150, armNear: [95, 95], legNear: [78, 100], footNear: 150 }, hold: 400, move: 1000 },
-    { pose: { hip: [30, 85], torso: 185, armNear: [-70, 88], legNear: [78, 100], footNear: 150 }, hold: 300, move: 900 },
+    { pose: { hip: [30, 87], torso: 150, armNear: [95, 95], legNear: [78, 100], footNear: 150 }, hold: 400, move: 1000 },
+    { pose: { hip: [30, 87], torso: 185, armNear: [3, 125], legNear: [78, 100], footNear: 150 }, hold: 300, move: 900 },
   ],
   still: 1,
 };
@@ -118,7 +118,7 @@ export const dbRow: Clip = {
 export const invertedRow: Clip = {
   id: 'inverted-row',
   anchor: { joint: 'wristNear', at: [76, 52] },
-  props: [{ kind: 'bar', at: [76, 52] }],
+  props: [{ kind: 'bar', at: [76, 49.5] }],
   keyframes: [
     { pose: { torso: 98, armNear: [180, 180], legNear: [-82, -82], footNear: 140 }, hold: 400, move: 1000 },
     { pose: { torso: 110.3, armNear: [-140, 104], legNear: [-69.7, -69.7], footNear: 140 }, hold: 300, move: 900 },
@@ -128,10 +128,10 @@ export const invertedRow: Clip = {
 
 export const proneYRaise: Clip = {
   id: 'prone-y-raise',
-  anchor: { joint: 'hip', at: [45, 85] },
+  anchor: { joint: 'hip', at: [43.2, 88] },
   keyframes: [
-    { pose: { hip: [45, 85], torso: 90, head: 90, armNear: [100, 100], legNear: [-90, -90], footNear: 20 }, hold: 400, move: 1000 },
-    { pose: { hip: [45, 85], torso: 95, head: 105, armNear: [140, 140], legNear: [-90, -90], footNear: 20 }, hold: 300, move: 900 },
+    { pose: { hip: [43.2, 88], torso: 90, head: 90, armNear: [100, 100], legNear: [-90, -90], footNear: 50 }, hold: 400, move: 1000 },
+    { pose: { hip: [43.2, 88], torso: 95, head: 105, armNear: [135, 135], armFar: [150, 150], legNear: [-90, -90], footNear: 50 }, hold: 300, move: 900 },
   ],
   still: 1,
 };

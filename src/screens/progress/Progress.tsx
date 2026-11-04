@@ -32,7 +32,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 function Tile({ value, label, caption }: { value: string; label: string; caption: string }) {
   return (
     <Card className="px-3 py-3.5">
-      <p className="text-numeral font-bold tabular leading-none">{value}</p>
+      <p className="text-title font-bold tabular leading-none">{value}</p>
       <p className="mt-2 text-caption font-semibold">{label}</p>
       <p className="mt-0.5 text-micro normal-case tracking-normal text-ink-3">{caption}</p>
     </Card>
@@ -208,7 +208,7 @@ export default function Progress() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-body font-medium">{ex.name}</p>
                         <p className="truncate text-caption text-ink-2 tabular">
-                          {weighted ? `Heaviest ${dw(p.heaviestKg)} ${wl} × ${p.heaviestReps}` : `Most reps: ${p.mostReps}`} · {formatDate(p.date)}
+                          {weighted ? `Heaviest ${dw(p.heaviestKg)} ${wl} × ${p.heaviestReps}` : (ex.unit === 'sec' || ex.unit === 'secPerSide' ? `Longest hold ${p.mostReps} s` : `Most reps ${p.mostReps}`)} · {formatDate(p.date)}
                         </p>
                       </div>
                       {weighted && (

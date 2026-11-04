@@ -101,9 +101,11 @@ export function Bars({ data, label, format = (n) => String(n), height = 120 }: {
                 {format(d.value)}
               </text>
             )}
-            <text x={x + bw / 2} y={height - 4} textAnchor="middle" style={{ ...INK3, ...FONT }}>
-              {d.label}
-            </text>
+            {(data.length - 1 - i) % 2 === 0 && (
+              <text x={x + bw / 2} y={height - 4} textAnchor="middle" style={{ ...INK3, ...FONT }}>
+                {d.label}
+              </text>
+            )}
           </g>
         );
       })}

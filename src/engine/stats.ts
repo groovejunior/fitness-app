@@ -77,6 +77,8 @@ export function personalRecords(sets: SetLike[]): PersonalRecord[] {
   const by = new Map<string, PersonalRecord>();
   for (const s of sets) {
     if (!s.done || s.reps <= 0) continue;
+    const slot = getExercise(s.exerciseId).slot;
+    if (slot === 'warmup' || slot === 'mobility') continue;
     const cur = by.get(s.exerciseId) ?? { exerciseId: s.exerciseId, bestE1rm: 0, heaviestKg: 0, heaviestReps: 0, date: s.date, mostReps: 0 };
     const w = s.weightKg ?? 0;
     const est = w > 0 ? e1rm(w, s.reps) : 0;

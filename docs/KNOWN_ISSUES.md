@@ -25,8 +25,14 @@ What isn't done, isn't tested, or is a known compromise.
   - side plank, band pull-apart
   - open book (thoracic rotation)
   - Pallof press (the band anchor is drawn behind)
+- Near-identical side views: chin-up vs pull-up, diamond vs regular push-up, wide vs regular inverted row. Cossack squat is a sideways move, shown as a deep single-leg squat. Dip bars are drawn as one line without posts.
 - There are no machine props. Leg press, rowing machine and incline bench are approximations.
 - The loop plays a move forward then back. Jumps look like they rewind on the way back.
+
+## Training style
+- "Bodyweight first" keeps barbell squats/deadlifts as the leg main lifts. If Carlo wants legs fully bodyweight too, pick the Bodyweight context for that session (or we add a stricter style).
+- Bodyweight progression is reps-based only. The app doesn't yet suggest moving to a harder variation (e.g. push-up → archer push-up) when you top out; the note just says to slow the lowering.
+- Weighted calisthenics (weighted pull-ups/dips) is not modelled.
 
 ## App
 - Calendar export uses fixed start times per time window (07:00, 12:00, 18:00) and doesn't know your timetable.

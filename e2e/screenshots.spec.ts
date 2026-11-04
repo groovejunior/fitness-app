@@ -55,7 +55,8 @@ for (const theme of ['light', 'dark'] as const) {
     const ids = await sessionIds(page);
     await go(page, `/session/${ids.gym}`);
     await shot('05-workout-detail', true);
-    const row = page.getByTestId('exercise-row').nth(4);
+    const preferred = page.locator('[data-testid="exercise-row"][data-exercise-id="pullup"], [data-testid="exercise-row"][data-exercise-id="dip"], [data-testid="exercise-row"][data-exercise-id="decline-pushup"]');
+    const row = (await preferred.count()) ? preferred.first() : page.getByTestId('exercise-row').nth(6);
     if (await row.count()) {
       await row.click();
       await page.waitForTimeout(400);

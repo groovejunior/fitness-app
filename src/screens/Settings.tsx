@@ -80,6 +80,7 @@ export function Settings() {
   const [pending, setPending] = useState<Backup | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -331,6 +332,20 @@ export function Settings() {
       </Card>
 
       <SectionTitle>About</SectionTitle>
+      <Card className="py-1">
+        <button
+          type="button"
+          data-testid="training-sources"
+          onClick={() => setSourcesOpen(true)}
+          className="flex min-h-[56px] w-full items-center gap-3 py-3 text-left active:opacity-70"
+        >
+          <div className="min-w-0 flex-1">
+            <div className="text-[16px] font-medium">Where the plan comes from</div>
+            <div className="mt-0.5 text-[14px] text-muted">Open papers and guidelines, not a black box.</div>
+          </div>
+          <Icon name="chevron-right" size={18} className="shrink-0 text-muted" />
+        </button>
+      </Card>
       <div className="px-1">
         <div className="text-[16px] font-medium">
           Fitness <span className="tnum font-normal text-muted">v0.1</span>
@@ -349,6 +364,44 @@ export function Settings() {
           <Button block variant="secondary" disabled={busy} onClick={() => setPending(null)}>
             Cancel
           </Button>
+        </div>
+      </Sheet>
+
+      <Sheet open={sourcesOpen} onClose={() => setSourcesOpen(false)} title="Where the plan comes from">
+        <div className="space-y-4 pb-2 text-[15px] leading-relaxed text-ink-2" data-testid="sources-sheet">
+          <p>
+            The coach is a set of rules that run on this phone. The first version used standard training practice. Next, each rule gets pinned to a published source, so you can see why a week looks the way it does.
+          </p>
+          <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">The sources we will use</p>
+          <ul className="space-y-3">
+            <li>
+              <a className="font-medium text-accent" href="https://www.health.gov.au/topics/physical-activity/24-hour-movement-guidelines-for-all-australians/recommendations-for-adults-18-to-64-years" target="_blank" rel="noreferrer">
+                Australian 24-hour movement guidelines
+              </a>
+              <div className="mt-0.5 text-[14px] text-muted">Health minimums for adults here: muscle work twice a week, 30 minutes most days.</div>
+            </li>
+            <li>
+              <a className="font-medium text-accent" href="https://www.who.int/publications/i/item/9789240015128" target="_blank" rel="noreferrer">
+                WHO physical activity guidelines
+              </a>
+              <div className="mt-0.5 text-[14px] text-muted">The global version of the same idea. Free to read.</div>
+            </li>
+            <li>
+              <a className="font-medium text-accent" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/" target="_blank" rel="noreferrer">
+                ACSM resistance-training reviews
+              </a>
+              <div className="mt-0.5 text-[14px] text-muted">How often to train, how to add load, what actually changes results.</div>
+            </li>
+            <li>
+              <a className="font-medium text-accent" href="https://sportscience.sportsci.org/2009/ss.htm" target="_blank" rel="noreferrer">
+                Seiler on easy running
+              </a>
+              <div className="mt-0.5 text-[14px] text-muted">Why most runs stay easy, and only one or two sessions a week are hard.</div>
+            </li>
+          </ul>
+          <p className="text-[14px] text-muted">
+            We will not copy copyrighted coaching books into the app. If a book and a paper say the same thing, the paper is what we cite.
+          </p>
         </div>
       </Sheet>
 

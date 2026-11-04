@@ -77,5 +77,9 @@ for (const theme of ['light', 'dark'] as const) {
     await shot('11-progress', true);
     await go(page, '/settings');
     await shot('12-settings', true);
+    await page.getByTestId('training-sources').click();
+    await page.waitForTimeout(400);
+    await shot('13-sources-sheet');
+    await page.keyboard.press('Escape');
   });
 }

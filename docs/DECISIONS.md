@@ -27,7 +27,7 @@ Key choices made while building v1, and why. Newest at the bottom.
 ## Exercise animations
 - One small renderer (`src/anim/`) draws every exercise from **pose data** (joint angles over 2–4 keyframes) instead of 40 hand-drawn SVGs. That guarantees a single consistent stroke style, keeps each animation a few lines of data, and makes animations easy to fix or add. Style guide: `docs/ANIMATION_STYLE.md`.
 - Thumbnails show a still keyframe; only the open exercise animates. `prefers-reduced-motion` shows stills everywhere.
-- 42 exercises (spec asked for about 35) so every equipment context has a real option for every movement pattern, plus warm-up and mobility moves.
+- 42 exercises at first, 57 after adding calisthenics moves (spec asked for about 35) so every equipment context has a real option for every movement pattern, plus warm-up and mobility moves.
 
 ## Data
 - Dexie (IndexedDB) tables: `kv` (profile, settings), `blocks`, `weeks` (the plan in use plus both generated options), `sessions` (committed/in progress/done/skipped, with a snapshot of the workout), `sets` (one row per logged set). Progress and progression are computed from `sessions` + `sets`.

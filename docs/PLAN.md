@@ -24,3 +24,6 @@ Branch: `feat/v1` (the cloud session also mirrors it on its own working branch).
 - **Haiku:** screenshot runs, mechanical lint/type fixes.
 
 Rule: no two subagents touch the same files at the same time. Each brief lists the files it owns.
+
+## Outcome
+All milestones done in one run. Deviations: the animation work was done as pose data for one shared renderer (see DECISIONS); a parallel duplicate session's additions (bodyweight-first style, more calisthenics moves) were ported in at the end. Screenshot runs were done by the lead with `scripts/screenshots.mjs` rather than a Haiku subagent, as a single command run.

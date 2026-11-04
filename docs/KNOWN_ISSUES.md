@@ -32,7 +32,7 @@ Honest list of what is not done, not tested, or only approximately right. Newest
 - The harder-variation suggestion ("Ready for archer push-ups") is a note on the exercise; it doesn't swap automatically.
 
 ## Animations that are only approximate
-All 42 exercises have an animation in the same style; these read less well than the rest:
+All 57 exercises have an animation in the same style; these read less well than the rest:
 - **Side plank**, **open book**: lying on the side is hard to show in a side-view stick figure; stylised.
 - **Hanging knee raise**, **pull-up**: the hang is a little compressed to fit the frame.
 - **Pike push-up**: the bottom position bends the elbows awkwardly.

@@ -324,10 +324,20 @@ function evaluate(placed: Placed[], avail: DayAvailability[], opts: { blocked?: 
   // Hard days in a row.
   const hardDay = byDay.map((l) => l.some(isHard));
   for (let d = 0; d < 6; d++) if (hardDay[d] && hardDay[d + 1]) out.push({ score: 10 });
-  for (let d = 0; d < 5; d++) {
-    if (hardDay[d] && hardDay[d + 1] && hardDay[d + 2]) {
-      out.push({ score: 30, message: `Three hard days in a row (${D[d]}–${D[d + 2]}).` });
+  // Runs of 3+ hard days: penalise each extra day, warn once per run.
+  for (let d = 0; d < 7; ) {
+    if (!hardDay[d]) {
+      d++;
+      continue;
     }
+    let e = d;
+    while (e + 1 < 7 && hardDay[e + 1]) e++;
+    const len = e - d + 1;
+    if (len >= 3) {
+      const words = ['', '', '', 'Three', 'Four', 'Five', 'Six', 'Seven'];
+      out.push({ score: 30 * (len - 2), message: `${words[len]} hard days in a row (${D[d]}–${D[e]}).` });
+    }
+    d = e + 1;
   }
 
   // Rest day.

@@ -225,10 +225,15 @@ export function candidatesFor(
 function choose(slot: Slot, list: Exercise[], input: StrengthInput, alt: boolean): Exercise | undefined {
   if (list.length === 0) return undefined;
   if (slot.role === 'main') {
-    const top = list.slice(0, Math.min(2, list.length));
-    const i = (hash(`${input.blockId}:${slot.key}`) + (alt ? 1 : 0)) % top.length;
-    // If the alternative is asked and only one candidate exists in the top two, take the next one.
-    return alt && top.length === 1 && list.length > 1 ? list[1] : top[i];
+    // Best-suited equipment first; vary only between equally suited lifts (by block).
+    const ctx = input.equipment;
+    const exp = input.profile.experience.gym;
+    const best = equipmentScore(list[0], ctx, exp);
+    const top = list.filter((e) => equipmentScore(e, ctx, exp) === best);
+    const i = hash(`${input.blockId}:${slot.key}`) % top.length;
+    if (!alt) return top[i];
+    // Alternative: the next lift in line.
+    return top.length > 1 ? top[(i + 1) % top.length] : (list[1] ?? list[0]);
   }
   const period = Math.floor(input.weekIndex / 2);
   const rotated = rotate(list, hash(`${input.blockId}:${input.focus}:${slot.key}`) + period + (alt ? 1 : 0));

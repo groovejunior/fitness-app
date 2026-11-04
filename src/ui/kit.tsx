@@ -245,7 +245,7 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
     >
       <span
         className={cx(
-          'absolute top-[2px] h-[27px] w-[27px] rounded-full bg-white shadow transition-transform duration-200',
+          'absolute left-0 top-[2px] h-[27px] w-[27px] rounded-full bg-white shadow transition-transform duration-200',
           checked ? 'translate-x-[22px]' : 'translate-x-[2px]',
         )}
       />

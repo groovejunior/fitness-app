@@ -148,7 +148,7 @@ export function makeRealistic(t: Targets, profile: Pick<Profile, 'experience' | 
   return out;
 }
 
-function describe(t: Targets): string {
+export function describeTargets(t: Targets): string {
   const parts: string[] = [];
   if (t.gym) parts.push(`${t.gym} gym`);
   if (t.run) parts.push(`${t.run} run${t.run > 1 ? 's' : ''}`);
@@ -216,13 +216,13 @@ export function proposeBlock(input: BlockInput): BlockProposal {
   const recommended: BlockOption = {
     key: 'recommended',
     label: realism.suggested ? 'Realistic version' : 'As planned',
-    description: describe(rec),
+    description: realism.suggested ? 'Trimmed to fit your free time and recovery.' : 'What you asked for. It fits your week.',
     targets: rec,
   };
   const alternative: BlockOption = {
     key: 'alternative',
     label: altLabel,
-    description: `${describe(alt)}. ${altDesc}`,
+    description: altDesc,
     targets: alt,
   };
 

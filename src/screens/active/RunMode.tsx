@@ -122,7 +122,7 @@ export function RunMode({ sessionId, workout }: { sessionId: string; workout: Wo
         <div className="tnum mt-10 text-[88px] font-bold leading-none tracking-[-0.03em]" aria-live="off" data-testid="run-remaining">
           {clock(Math.ceil(remaining))}
         </div>
-        <div className="mt-3 text-[15px] text-muted">{step.label}</div>
+        {!step.label.toLowerCase().startsWith(EFFORT_LABEL[step.effort].toLowerCase()) && <div className="mt-3 text-[15px] text-muted">{step.label}</div>}
       </div>
 
       <div className="mt-10 rounded-card bg-surface p-4 shadow-soft">
@@ -130,7 +130,8 @@ export function RunMode({ sessionId, workout }: { sessionId: string; workout: Wo
         {next ? (
           <div className="mt-1 flex items-baseline justify-between">
             <div className="text-[17px] font-semibold">
-              {EFFORT_LABEL[next.effort]} <span className="font-normal text-muted">· {next.label}</span>
+              {EFFORT_LABEL[next.effort]}
+              {!next.label.toLowerCase().includes(EFFORT_LABEL[next.effort].toLowerCase()) && <span className="font-normal text-muted"> · {next.label}</span>}
             </div>
             <div className="tnum text-[17px] text-ink-2">{clock(next.durationSec)}</div>
           </div>

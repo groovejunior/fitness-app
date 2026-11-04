@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
 import { committedWorkout, finishSession, sessionLog } from '../db/repo';
 import { getExercise, personalRecords } from '../engine';
-import type { SessionLog, SetLog } from '../engine/types';
+import type { PlannedSession, SessionLog, SetLog } from '../engine/types';
 import { clock, dayAndDate, kg } from '../lib/format';
 import { useHistory, useSession, useSessionSets } from '../lib/hooks';
 import { navigate } from '../lib/router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { DetailScreen } from '../ui/Layout';
 import { Button, Card, cx, SectionTitle, Stepper, Tag } from '../ui/kit';
+import { plannedSets } from './active/StrengthMode';
 import { resultKey, ssGet, startKey, type ActiveResult } from './active/device';
 
 const exName = (id: string) => {
@@ -81,7 +82,7 @@ export function Finish({ sessionId }: { sessionId: string }) {
   const existing = useLiveQuery(async () => ({ log: await sessionLog(sessionId) }), [sessionId]);
   if (!session || !sets || !history || !existing) return null;
   if (existing.log) return <ReadOnly log={existing.log} sets={sets} history={history.sets} />;
-  return <Form sessionId={sessionId} />;
+  return <Form sessionId={sessionId} session={session} allSets={sets} past={history.sets} />;
 }
 
 function ReadOnly({ log, sets, history }: { log: SessionLog; sets: SetLog[]; history: SetLog[] }) {
@@ -132,10 +133,8 @@ function prsFor(done: SetLog[], before: SetLog[]): Set<string> {
   return out;
 }
 
-function Form({ sessionId }: { sessionId: string }) {
-  const session = useSession(sessionId)!;
-  const sets = useSessionSets(sessionId)!.filter((s) => s.done);
-  const history = useHistory()!;
+function Form({ sessionId, session, allSets, past }: { sessionId: string; session: PlannedSession; allSets: SetLog[]; past: SetLog[] }) {
+  const sets = useMemo(() => allSets.filter((s) => s.done), [allSets]);
   const worked = useLiveQuery(() => committedWorkout(sessionId), [sessionId]);
   const result = useMemo(() => ssGet<ActiveResult>(resultKey(sessionId)) ?? {}, [sessionId]);
   const isRun = session.type === 'run';
@@ -157,10 +156,8 @@ function Form({ sessionId }: { sessionId: string }) {
   const [runMin, setRunMin] = useState(() => Math.round((result.elapsedSec ?? session.durationMin * 60) / 60));
   const [saving, setSaving] = useState(false);
 
-  const prs = useMemo(() => prsFor(sets, history.sets), [sets, history.sets]);
-  const totalSets = worked
-    ? worked.blocks.reduce((n, b) => n + b.items.reduce((m, i) => m + (i.kind === 'strength' ? i.sets : 0), 0), 0)
-    : undefined;
+  const prs = useMemo(() => prsFor(sets, past), [sets, past]);
+  const totalSets = worked ? plannedSets(worked) : undefined;
   const vol = volume(sets);
   const dist = Number(distance.replace(',', '.')) || 0;
   const pace = isRun ? paceText(dist, runMin * 60) : undefined;

@@ -5,6 +5,7 @@ import type {
   BlockOption,
   DayAvailability,
   Equipment,
+  TrainingStyle,
   EquipmentContext,
   Experience,
   PrimaryGoal,
@@ -34,8 +35,14 @@ const EXP: { value: Experience; label: string; text: string }[] = [
   { value: 'advanced', label: 'Advanced', text: 'Years of consistent training.' },
 ];
 
+export const STYLE_CHOICES: { value: TrainingStyle; label: string; text: string }[] = [
+  { value: 'calisthenics', label: 'Bodyweight first', text: 'Pull-ups, dips, push-ups and friends, plus a few classic barbell lifts. No machines.' },
+  { value: 'free-weights', label: 'Free weights', text: 'Barbells, dumbbells, kettlebells and bodyweight. No machines.' },
+  { value: 'all', label: 'Anything goes', text: 'Machines and cables too.' },
+];
+
 const EQUIP_CONTEXT: { value: EquipmentContext; label: string; text: string }[] = [
-  { value: 'gym', label: 'At the gym', text: 'Barbells, machines and cables.' },
+  { value: 'gym', label: 'At the gym', text: 'Bars, racks and free weights.' },
   { value: 'home', label: 'At home', text: 'Whatever you have there.' },
   { value: 'bodyweight', label: 'Just my body', text: 'No equipment needed.' },
 ];
@@ -214,6 +221,7 @@ function Flow({ existing }: { existing: Profile | null }) {
   const [expRun, setExpRun] = useState<Experience>(existing?.experience.run ?? 'beginner');
   const [rawAvail, setRawAvail] = useState<DayAvailability[]>(() => existing?.availability.map((a) => ({ ...a })) ?? defaultAvailability());
   const [equipCtx, setEquipCtx] = useState<EquipmentContext>(existing?.defaultEquipment ?? 'gym');
+  const [style, setStyle] = useState<TrainingStyle>(existing?.style ?? 'calisthenics');
   const [home, setHome] = useState<Equipment[]>(existing?.homeEquipment.filter((e) => e !== 'none') ?? ['dumbbell']);
   const [gym, setGym] = useState(existing?.wanted.gym ?? 3);
   const [runs, setRuns] = useState(existing?.wanted.run ?? 2);
@@ -240,6 +248,7 @@ function Flow({ existing }: { existing: Profile | null }) {
       goal,
       sports,
       defaultEquipment: equipCtx,
+      style,
       homeEquipment: home.length ? home : ['none'],
       wanted: { gym, run: runs, sport: sportCount, mobility: mob },
       availability: avail,
@@ -247,7 +256,7 @@ function Flow({ existing }: { existing: Profile | null }) {
       theme: existing?.theme ?? 'system',
       createdAt: existing?.createdAt ?? new Date().toISOString(),
     }),
-    [name, existing, expGym, expRun, goal, sports, equipCtx, home, gym, runs, sportCount, mob, avail],
+    [name, existing, expGym, expRun, goal, sports, equipCtx, style, home, gym, runs, sportCount, mob, avail],
   );
 
   const proposal = useMemo(() => (step === STEPS ? proposeBlock(draft) : null), [step, draft]);
@@ -461,6 +470,12 @@ function Flow({ existing }: { existing: Profile | null }) {
               <div className="space-y-3">
                 {EQUIP_CONTEXT.map((e) => (
                   <Choice key={e.value} selected={equipCtx === e.value} label={e.label} text={e.text} onClick={() => setEquipCtx(e.value)} data-testid={`equip-${e.value}`} />
+                ))}
+              </div>
+              <div className="mb-2 mt-8 px-1 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">How you like to train</div>
+              <div className="space-y-3">
+                {STYLE_CHOICES.map((c) => (
+                  <Choice key={c.value} selected={style === c.value} label={c.label} text={c.text} onClick={() => setStyle(c.value)} data-testid={`style-${c.value}`} />
                 ))}
               </div>
               <div className="mb-2 mt-8 px-1 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">What do you have at home?</div>

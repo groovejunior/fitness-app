@@ -41,6 +41,7 @@ export function buildEntries(workout: Workout): Entry[] {
   return out;
 }
 
+export const plannedSets = (w: Workout) => buildEntries(w).reduce((n, e) => n + setCount(e), 0);
 const setCount = (e: Entry) => (e.single ? 1 : Math.max(1, e.item.sets));
 const num = (s: string | undefined): number | undefined => {
   if (s === undefined || s.trim() === '') return undefined;
@@ -241,7 +242,7 @@ export function StrengthMode({
           <div className="px-1 text-[12px] font-semibold uppercase tracking-[0.06em] text-muted">
             {entry.blockTitle} · {entry.pos} of {entry.count}
           </div>
-          <div className="mt-3 flex h-[210px] items-center justify-center overflow-hidden rounded-[1.75rem] bg-surface-2 p-3">
+          <div className="mt-3 flex h-[150px] items-center justify-center overflow-hidden rounded-[1.75rem] bg-surface-2 p-3">
             <ExerciseFigure animationId={entry.ex.animationId} playing label={entry.ex.name} className="h-full max-w-[300px]" />
           </div>
           <h1 className="mt-5 px-1 text-[28px] font-bold leading-tight tracking-[-0.02em]" data-testid="active-exercise-name">
@@ -252,17 +253,7 @@ export function StrengthMode({
               ? targetText(entry.item.target, entry.ex.unilateral)
               : `${entry.item.sets} × ${targetText(entry.item.target, entry.ex.unilateral)}${entry.item.restSec ? ` · ${entry.item.restSec} s rest` : ''}`}
           </div>
-          <ul className="mt-3 space-y-1 px-1 text-[14px] leading-snug text-ink-2">
-            {entry.ex.cues.slice(0, entry.single ? 2 : 3).map((c) => (
-              <li key={c} className="flex gap-2">
-                <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-muted" />
-                {c}
-              </li>
-            ))}
-          </ul>
-          {entry.item.note && <div className="mt-2 px-1 text-[14px] text-muted">{entry.item.note}</div>}
-
-          <div className="mt-6 rounded-card bg-surface p-4 shadow-soft">
+          <div className="mt-5 rounded-card bg-surface p-4 shadow-soft">
             {entry.single ? (
               <div className="flex items-center gap-4">
                 <div className="min-w-0 flex-1">
@@ -273,8 +264,8 @@ export function StrengthMode({
               </div>
             ) : (
               <>
-                <div className="mb-1 flex items-center gap-3 px-1 text-[12px] font-semibold uppercase tracking-[0.06em] text-muted">
-                  <div className="w-7">Set</div>
+                <div className="mb-1 flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.06em] text-muted">
+                  <div className="w-7 pl-1">Set</div>
                   {weighted && <div className="flex-1 text-center">kg</div>}
                   <div className="flex-1 text-center">{metric === 'time' ? 'seconds' : 'reps'}</div>
                   <div className="w-14" />
@@ -336,6 +327,16 @@ export function StrengthMode({
               </>
             )}
           </div>
+          <ul className="mt-5 space-y-1 px-1 text-[14px] leading-snug text-ink-2">
+            {entry.ex.cues.slice(0, 2).map((c) => (
+              <li key={c} className="flex gap-2">
+                <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-muted" />
+                {c}
+              </li>
+            ))}
+          </ul>
+          {entry.item.note && <div className="mt-2 px-1 text-[14px] text-muted">{entry.item.note}</div>}
+
         </div>
       )}
       {!entry && !onPlay && <div className="p-6 text-muted">Nothing to do in this workout.</div>}
@@ -350,6 +351,7 @@ function NumInput({ value, onChange, decimal, label, testid, done }: { value: st
       onChange={(e) => onChange(e.target.value)}
       onFocus={(e) => e.currentTarget.select()}
       inputMode={decimal ? 'decimal' : 'numeric'}
+      placeholder="–"
       aria-label={label}
       data-testid={testid}
       className={cx(

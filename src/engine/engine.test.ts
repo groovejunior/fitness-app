@@ -291,6 +291,53 @@ describe('workouts', () => {
   });
 });
 
+describe('training style', () => {
+  const gymWorkout = (style: Profile['style'], exp: Profile['experience']['gym'] = 'intermediate') => {
+    const p = carlo({ style, experience: { gym: exp, run: 'beginner' } });
+    const { block, week } = setup(p);
+    const out: Workout[] = [];
+    for (const s of week.recommended.sessions.filter((x) => x.type === 'gym')) {
+      const o = coach.generateWorkout(s, { profile: p, block, week: week.recommended, history: emptyHistory() });
+      out.push(o.recommended, o.alternative);
+    }
+    return out;
+  };
+
+  it('calisthenics (the default) never uses machines or cables', () => {
+    for (const w of gymWorkout(undefined)) {
+      for (const it of strengthItems(w)) {
+        const e = getExercise(it.exerciseId);
+        expect(e.equipment, e.id).not.toContain('machine');
+        expect(e.equipment, e.id).not.toContain('cable');
+      }
+    }
+  });
+
+  it('calisthenics: loaded lifts are only the few classics', () => {
+    for (const w of gymWorkout('calisthenics')) {
+      for (const it of strengthItems(w)) {
+        const e = getExercise(it.exerciseId);
+        const loaded = e.equipment.some((x) => ['barbell', 'dumbbell', 'kettlebell'].includes(x));
+        if (loaded) expect(e.classic, e.id).toBe(true);
+      }
+    }
+  });
+
+  it('calisthenics: upper-body main lifts are bodyweight, leg main lifts are classic barbell', () => {
+    const w = gymWorkout('calisthenics')[0];
+    const mains = (w.blocks.find((b) => b.kind === 'main')!.items as StrengthItem[]).map((i) => getExercise(i.exerciseId));
+    for (const e of mains) {
+      if (e.pattern === 'push' || e.pattern === 'pull') expect(e.equipment.some((x) => ['barbell', 'dumbbell'].includes(x)), e.id).toBe(false);
+      if (e.pattern === 'squat' || e.pattern === 'hinge') expect(e.equipment, e.id).toContain('barbell');
+    }
+  });
+
+  it('"anything" style may use machines', () => {
+    const ids = gymWorkout('all').flatMap((w) => strengthItems(w).map((i) => getExercise(i.exerciseId)));
+    expect(ids.some((e) => e.equipment.includes('machine') || e.equipment.includes('cable'))).toBe(true);
+  });
+});
+
 describe('progression', () => {
   const ex = () => getExercise('goblet-squat');
   const log = (reps: number[], w: number, date = '2026-11-02'): SetLog[] =>

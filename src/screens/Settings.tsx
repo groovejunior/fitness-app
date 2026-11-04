@@ -7,7 +7,7 @@ import { dateShort, downloadFile } from '../lib/format';
 import { navigate } from '../lib/router';
 import { saveProfile } from '../db/repo';
 import { backupFileName, exportBackup, importBackup, parseBackup, resetAll, type Backup } from '../db/backup';
-import { ALL_EQUIPMENT, CONTEXT_LABEL, type Equipment, type EquipmentContext, type Experience, type PrimaryGoal, type Profile } from '../engine';
+import { ALL_EQUIPMENT, CONTEXT_LABEL, STYLE_LABEL, type Equipment, type EquipmentContext, type Experience, type PrimaryGoal, type Profile, type TrainingStyle } from '../engine';
 
 const GOALS: { value: PrimaryGoal; label: string }[] = [
   { value: 'athletic', label: 'Athletic' },
@@ -28,6 +28,7 @@ const EQUIPMENT_LABEL: Record<Equipment, string> = {
   machine: 'Machines',
   bench: 'Bench',
   'pullup-bar': 'Pull-up bar',
+  'dip-bars': 'Dip bars',
   band: 'Bands',
   box: 'Box',
   none: 'None',
@@ -216,6 +217,22 @@ export function Settings() {
               </Chip>
             ))}
           </div>
+        </Field>
+        <Field label="Training style">
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(STYLE_LABEL) as TrainingStyle[]).map((st) => (
+              <Chip key={st} selected={(cur.style ?? 'calisthenics') === st} onClick={() => update({ style: st })} data-testid={`style-${st}`}>
+                {STYLE_LABEL[st]}
+              </Chip>
+            ))}
+          </div>
+          <p className="mt-2 px-1 text-[13px] leading-snug text-muted">
+            {(cur.style ?? 'calisthenics') === 'calisthenics'
+              ? 'Pull-ups, dips and push-ups first, plus a few classic barbell lifts. No machines.'
+              : cur.style === 'free-weights'
+                ? 'Barbells, dumbbells, kettlebells and bodyweight. No machines.'
+                : 'Anything the gym has, machines and cables included.'}
+          </p>
         </Field>
         <Field label="Equipment at home">
           <div className="flex flex-wrap gap-2">

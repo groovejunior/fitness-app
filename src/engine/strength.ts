@@ -1,6 +1,6 @@
 // Gym / strength workout generation.
 // Structure: warm-up → (power) → main lifts → accessories → core → (finisher) → cool-down.
-import { canDo, equipmentFor } from './equipment';
+import { canDo, equipmentFor, fitsStyle, isCalisthenics, styleOf } from './equipment';
 import { hash, rotate } from './hash';
 import { EXERCISES } from './library';
 import { suggestLoad } from './progression';
@@ -17,6 +17,7 @@ import type {
   Muscle,
   PrimaryGoal,
   Profile,
+  TrainingStyle,
   RepTarget,
   StrengthItem,
   WeekPhase,
@@ -36,7 +37,7 @@ export interface StrengthInput {
   /** Seed for exercise choice. Main lifts stay the same for a whole block. */
   blockId: string;
   emphasis?: 'lower' | 'upper';
-  profile: Pick<Profile, 'goal' | 'experience' | 'homeEquipment'>;
+  profile: Pick<Profile, 'goal' | 'experience' | 'homeEquipment' | 'style'>;
   history: History;
   /** Exercise swaps chosen by the user: original exercise id → replacement id. */
   swaps?: Record<string, string>;
@@ -169,14 +170,31 @@ const MAX_DIFFICULTY: Record<Experience, number> = { beginner: 2, intermediate: 
 // ---------------------------------------------------------------------------
 // Exercise choice
 
-/** How well an exercise's equipment suits a context for a main lift (higher = preferred). */
-function equipmentScore(e: Exercise, ctx: EquipmentContext, exp: Experience): number {
+const DIFFICULTY_TARGET: Record<Experience, number> = { beginner: 1, intermediate: 2, advanced: 3 };
+const LOWER: MovementPattern[] = ['squat', 'hinge'];
+
+/**
+ * How well an exercise suits a slot in this context and training style (higher = preferred).
+ * Calisthenics style: bodyweight moves lead everywhere except the big leg lifts, where a
+ * classic barbell (or goblet squat for beginners) does the job bodyweight can't.
+ */
+function equipmentScore(e: Exercise, ctx: EquipmentContext, exp: Experience, style: TrainingStyle = 'all', slot?: Slot): number {
   const eq = e.equipment;
+  const fit = -0.3 * Math.abs(e.difficulty - DIFFICULTY_TARGET[exp]);
+  if (style === 'calisthenics') {
+    const lowerMain = slot?.role === 'main' && LOWER.includes(e.pattern);
+    if (isCalisthenics(e)) return (lowerMain ? 2 : 4) + fit;
+    if (e.classic) {
+      if (lowerMain) return eq.includes('barbell') ? (exp === 'beginner' ? 3 : 4) : exp === 'beginner' ? 4 : 3;
+      return 2.5;
+    }
+    return 0;
+  }
   if (ctx === 'gym') {
     if (eq.includes('barbell')) return exp === 'beginner' ? 2 : 4;
     if (eq.includes('dumbbell') || eq.includes('kettlebell')) return 3;
     if (eq.includes('cable') || eq.includes('machine')) return exp === 'beginner' ? 3.5 : 2.5;
-    if (eq.includes('pullup-bar')) return 3;
+    if (eq.includes('pullup-bar') || eq.includes('dip-bars')) return 3;
     return 1;
   }
   if (eq.includes('none') && eq.length === 1) return 1;
@@ -200,19 +218,23 @@ export function candidatesFor(
   exclude: Set<string>,
 ): Exercise[] {
   const available = equipmentFor(ctx, profile);
+  const style = styleOf(profile);
   const maxD = MAX_DIFFICULTY[profile.experience.gym];
   const roleOrder: ExerciseRole[] = slot.role === 'main' ? ['main', 'accessory'] : slot.role === 'accessory' ? ['accessory', 'main'] : [slot.role];
   for (const role of roleOrder) {
     const list = EXERCISES.filter(
-      (e) => e.roles.includes(role) && matches(e, slot) && canDo(e, available) && e.difficulty <= maxD && !exclude.has(e.id),
+      (e) =>
+        e.roles.includes(role) &&
+        matches(e, slot) &&
+        canDo(e, available) &&
+        fitsStyle(e, style) &&
+        e.difficulty <= maxD &&
+        !exclude.has(e.id),
     );
     if (list.length > 0) {
-      // Stable order: preferred equipment first, then by id.
-      return list.sort(
-        (a, b) =>
-          equipmentScore(b, ctx, profile.experience.gym) - equipmentScore(a, ctx, profile.experience.gym) ||
-          (a.id < b.id ? -1 : 1),
-      );
+      // Stable order: best suited first, then by id.
+      const sc = (e: Exercise) => equipmentScore(e, ctx, profile.experience.gym, style, slot);
+      return list.sort((a, b) => sc(b) - sc(a) || (a.id < b.id ? -1 : 1));
     }
   }
   return [];
@@ -226,10 +248,9 @@ function choose(slot: Slot, list: Exercise[], input: StrengthInput, alt: boolean
   if (list.length === 0) return undefined;
   if (slot.role === 'main') {
     // Best-suited equipment first; vary only between equally suited lifts (by block).
-    const ctx = input.equipment;
-    const exp = input.profile.experience.gym;
-    const best = equipmentScore(list[0], ctx, exp);
-    const top = list.filter((e) => equipmentScore(e, ctx, exp) === best);
+    const sc = (e: Exercise) => equipmentScore(e, input.equipment, input.profile.experience.gym, styleOf(input.profile), slot);
+    const best = sc(list[0]);
+    const top = list.filter((e) => Math.abs(sc(e) - best) < 1e-9);
     const i = hash(`${input.blockId}:${slot.key}`) % top.length;
     if (!alt) return top[i];
     // Alternative: the next lift in line.
@@ -260,7 +281,7 @@ function drillBlock(
   profile: StrengthInput['profile'],
 ): WorkoutBlock {
   const available = equipmentFor(ctx, profile);
-  const pool = EXERCISES.filter((e) => e.roles.includes(kind) && canDo(e, available));
+  const pool = EXERCISES.filter((e) => e.roles.includes(kind) && canDo(e, available) && fitsStyle(e, styleOf(profile)));
   const lowerMuscles: Muscle[] = ['hips', 'hamstrings', 'glutes', 'quads', 'calves'];
   const scored = [...pool].sort((a, b) => {
     const sa = lowerMuscles.includes(a.muscles[0]) === input.lowerBias ? 0 : 1;
@@ -329,7 +350,18 @@ export function generateStrength(input: StrengthInput, variant: 'recommended' | 
       const r = slot.role === 'main' ? scheme.main : scheme.acc;
       target = e.load === 'timed' ? { kind: 'time', seconds: 40 } : { kind: 'reps', min: r.min, max: r.max };
       restSec = r.rest;
-      if (e.load === 'bodyweight' && target.kind === 'reps') target = { kind: 'reps', min: Math.max(r.min, 8), max: Math.max(r.max, 12) };
+      if (e.load === 'bodyweight' && target.kind === 'reps') {
+        // Bodyweight: hard pulls and dips in a lower range, everything else higher.
+        const hard = (e.pattern === 'pull' && e.plane === 'vertical') || e.id.includes('dip') || e.difficulty === 3;
+        target =
+          slot.role === 'main'
+            ? hard
+              ? { kind: 'reps', min: 5, max: 8 }
+              : { kind: 'reps', min: 8, max: 12 }
+            : hard
+              ? { kind: 'reps', min: 6, max: 10 }
+              : { kind: 'reps', min: 10, max: 15 };
+      }
     }
     if (alt && (slot.role === 'accessory' || slot.role === 'core')) restSec = Math.min(restSec, 45);
     if (phase === 'peak' && slot.role === 'main') sets += 1;
@@ -450,7 +482,9 @@ export function generateStrength(input: StrengthInput, variant: 'recommended' | 
   const remaining = budget - spent;
   if (remaining >= 360 && !deload) {
     const available = equipmentFor(input.equipment, profile);
-    const pool = EXERCISES.filter((e) => e.roles.includes('conditioning') && canDo(e, available) && !used.has(e.id)).sort(
+    const pool = EXERCISES.filter(
+      (e) => e.roles.includes('conditioning') && canDo(e, available) && fitsStyle(e, styleOf(profile)) && !used.has(e.id),
+    ).sort(
       (a, b) => (a.id < b.id ? -1 : 1),
     );
     if (pool.length) {

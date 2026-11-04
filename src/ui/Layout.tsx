@@ -68,7 +68,7 @@ export function DetailScreen({
         <div className="rise">{children}</div>
       </main>
       {footer && (
-        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-bg via-bg to-bg/0 pt-6">
+        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-bg from-75% to-bg/0 pt-6">
           <div className="mx-auto max-w-lg px-4 pb-2">{footer}</div>
         </div>
       )}

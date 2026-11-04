@@ -1,5 +1,5 @@
 // Sport sessions (tennis, water skiing, …) and mobility sessions.
-import { canDo, equipmentFor } from './equipment';
+import { canDo, equipmentFor, fitsStyle, styleOf } from './equipment';
 import { hash, rotate } from './hash';
 import { EXERCISES } from './library';
 import type { EquipmentContext, Intensity, Profile, StrengthItem, Workout, WorkoutBlock } from './types';
@@ -13,7 +13,7 @@ export interface SportInput {
   equipment: EquipmentContext;
   weekIndex: number;
   blockId: string;
-  profile: Pick<Profile, 'goal' | 'experience' | 'homeEquipment'>;
+  profile: Pick<Profile, 'goal' | 'experience' | 'homeEquipment' | 'style'>;
 }
 
 /** Conditioning that carries over to a sport, by pattern / muscle preference. */
@@ -61,7 +61,7 @@ export function generateSport(input: SportInput, variant: 'recommended' | 'alter
   const used = new Set<string>();
   for (const p of f.patterns) {
     const pool = EXERCISES.filter(
-      (e) => e.pattern === p && canDo(e, available) && !used.has(e.id) && e.roles.some((r) => r !== 'warmup' && r !== 'cooldown'),
+      (e) => e.pattern === p && canDo(e, available) && fitsStyle(e, styleOf(input.profile)) && !used.has(e.id) && e.roles.some((r) => r !== 'warmup' && r !== 'cooldown'),
     ).sort((a, b) => (a.id < b.id ? -1 : 1));
     const e = rotate(pool, hash(`${input.blockId}:${input.sport}:${p}`) + input.weekIndex)[0];
     if (!e) continue;

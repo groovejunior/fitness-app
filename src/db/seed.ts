@@ -23,18 +23,21 @@ async function seedHistory() {
   const logs: SessionLog[] = [];
   const lift = (sid: string, date: string, ex: string, w: number, reps: number[]) =>
     reps.forEach((r, i) => sets.push({ id: `${sid}-${ex}-${i}`, sessionId: sid, exerciseId: ex, date, setIndex: i, weightKg: w, reps: r, done: true }));
+  const reps = (sid: string, date: string, ex: string, rs: number[]) =>
+    rs.forEach((r, i) => sets.push({ id: `${sid}-${ex}-${i}`, sessionId: sid, exerciseId: ex, date, setIndex: i, reps: r, done: true }));
   for (let wk = 3; wk >= 1; wk--) {
     const m = addDays(monday, -7 * wk);
     const k = 3 - wk; // 0, 1, 2 → progressing
     const g1 = `past-${m}-g1`;
     lift(g1, addDays(m, 1), 'back-squat', 60 + k * 5, [8, 8, 7 + (k > 0 ? 1 : 0)]);
-    lift(g1, addDays(m, 1), 'bench-press', 50 + k * 2.5, [8, 8, 8]);
-    lift(g1, addDays(m, 1), 'lat-pulldown', 45, [10, 10, 9 + k]);
+    reps(g1, addDays(m, 1), 'decline-pushup', [12, 11, 10 + k]);
+    reps(g1, addDays(m, 1), 'pullup', [6, 5 + (k > 0 ? 1 : 0), 5 + k]);
     logs.push({ sessionId: g1, date: addDays(m, 1), type: 'gym', title: 'Full body A', intent: 'full-a', durationMin: 62, effort: 7, completedAt: `${addDays(m, 1)}T19:00:00.000Z` });
     const g2 = `past-${m}-g2`;
     lift(g2, addDays(m, 4), 'romanian-deadlift', 60 + k * 5, [8, 8, 8]);
     lift(g2, addDays(m, 4), 'overhead-press', 32.5 + k * 2.5, [8, 7, 6]);
-    lift(g2, addDays(m, 4), 'barbell-row', 50, [10, 9, 9]);
+    reps(g2, addDays(m, 4), 'dip', [8, 8, 7 + k]);
+    reps(g2, addDays(m, 4), 'inverted-row', [10, 10, 9 + k]);
     logs.push({ sessionId: g2, date: addDays(m, 4), type: 'gym', title: 'Full body B', intent: 'full-b', durationMin: 55, effort: 7, completedAt: `${addDays(m, 4)}T08:00:00.000Z` });
     const r1 = `past-${m}-r1`;
     logs.push({ sessionId: r1, date: addDays(m, 5), type: 'run', title: 'Easy run', intent: 'easy', durationMin: 32 + k * 3, distanceKm: 5 + k * 0.5, runTimeSec: (32 + k * 3) * 60, effort: 4, completedAt: `${addDays(m, 5)}T08:00:00.000Z` });

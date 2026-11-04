@@ -22,6 +22,7 @@ export type Equipment =
   | 'machine'
   | 'bench'
   | 'pullup-bar'
+  | 'dip-bars'
   | 'band'
   | 'box'
   | 'none';
@@ -77,7 +78,20 @@ export interface Exercise {
   animationId: string;
   /** Exercise ids with the same pattern but different equipment. */
   substitutions: string[];
+  /**
+   * A simple, classic free-weight lift (back squat, deadlift, bench press, …).
+   * The calisthenics style allows these but no other loaded exercises.
+   */
+  classic?: boolean;
 }
+
+/**
+ * How someone likes to train strength.
+ * calisthenics: bodyweight first, plus a few classic barbell/dumbbell lifts, never machines or cables.
+ * free-weights: barbells, dumbbells, kettlebells and bodyweight, no machines or cables.
+ * all: anything the gym has.
+ */
+export type TrainingStyle = 'calisthenics' | 'free-weights' | 'all';
 
 // ---------------------------------------------------------------------------
 // Profile and availability
@@ -113,6 +127,8 @@ export interface Profile {
   goal: PrimaryGoal;
   sports: SportPref[];
   defaultEquipment: EquipmentContext;
+  /** Missing means 'calisthenics' (the default). */
+  style?: TrainingStyle;
   /** What "home with some equipment" means for this person. */
   homeEquipment: Equipment[];
   wanted: Targets;

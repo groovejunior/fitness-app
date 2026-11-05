@@ -95,7 +95,7 @@ export function runKinds(n: number, exp: Profile['experience']['run'], weekIndex
   return kinds;
 }
 
-/** Weekly run volume factor per block week: ≤ 10% growth, then deload. */
+/** Weekly run minutes across a block: a gentle rise, then a lighter week. A brake against a spike, not an injury rule. */
 export const RUN_VOLUME = [1, 1.08, 1.16, 0.8];
 
 function runDurations(kinds: RunKind[], weeklyMin: number, exp: Profile['experience']['run']): number[] {

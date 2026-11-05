@@ -20,18 +20,17 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - No AI-sounding UI copy. Short, plain, human sentences.
 
 ## 3. Current status
-- 2026-11-04: v1 merged into `main` (PR #2). GitHub Pages deploy workflow added (PR #3); Carlo still has to switch Pages on in the repo settings (and the repo must be public or on GitHub Pro). All screens from SPEC §5 exist: onboarding, Today, Plan (month + week), workout detail, workout mode (sets, rest timer, run interval timer), finish, Progress, Settings. Rule engine in `src/engine/` with 76 unit tests; Playwright e2e journey passes; screenshots in `docs/screenshots/`.
+- 2026-11-04: v1 merged into `main` (PR #2). GitHub Pages deploy workflow added (PR #3); Carlo still has to switch Pages on in the repo settings (and the repo must be public or on GitHub Pro). All screens from SPEC §5 exist: onboarding, Today, Plan (month + week), workout detail, workout mode (sets, rest timer, run interval timer), finish, Progress, Settings. Rule engine in `src/engine/` with 88 unit tests; Playwright e2e journey passes; screenshots in `docs/screenshots/`.
 - Exercise library: 89 exercises, each with a line-art animation on one shared stick-figure rig (`src/animations/rig.ts`).
 - Training style defaults to **bodyweight first** (Carlo's wish: calisthenics + a few classic lifts, no machines); changeable in Settings.
 - Bottom sheets: grabber bar now drags (or taps) to dismiss.
-- Training knowledge: agreed path is a **cited rulebook** (open papers/guidelines, not live AI and not copyrighted books in the repo). Sources and the fold-in plan are in `docs/TRAINING_KNOWLEDGE.md`. Engine rules are not cited yet. Settings has a "Where the plan comes from" note.
+- Training knowledge: the six sources drive the coach (Australian guidelines, Currier 2023, ACSM 2009 progression, Seiler, IOC load consensus, Kotarsky 2018). Settings lists them. Each workout carries a source id and the screen shows one sentence. Load steps stay inside about 2–10%, bodyweight moves step up when every set tops out, rests follow the beginner / trained split, and week 4 is a lighter week so the load does not only rise.
 - Not tested on a real iPhone yet; see `docs/KNOWN_ISSUES.md`.
 
 ## 4. Open questions for Carlo (later)
 - Whether to add cloud sync.
 - Whether to add a Claude AI coach on top of the rule engine.
 - Which exercises/sports to add after using v1.
-- Confirm the cited-rulebook path, then encode sources into the engine one family of rules at a time (gym progression, running mix, rest times, bodyweight variations).
 
 ## 5. Session log
 - 2026-11-04: Spec written from Carlo's brief; decisions agreed (PWA, local storage, rule engine, custom animations). Private repo created; cloud build session launched.
@@ -39,3 +38,5 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - 2026-11-04: Carlo: "not a fan of machines, mainly bodyweight/calisthenics and a few simple classic exercises" → added training style (bodyweight first by default), 16 calisthenics moves, Progress tracks bodyweight lifts by reps.
 - 2026-11-04: Carlo chose GitHub Pages (like his other app). Added `BASE_PATH` support in `vite.config.ts` and a deploy workflow that runs the unit tests, builds and publishes on every push to `main`.
 - 2026-11-04: Sheet grabber bar now dismisses (drag / flick / tap). Training knowledge: research into open sources; decision is a cited rulebook (`docs/TRAINING_KNOWLEDGE.md`); Settings explains it. Engine not rewritten yet.
+- 2026-11-05: Sheet-grabber PR merged. Deeper source pass: six sources chosen to drive the coach (Australian guidelines, Currier 2023, ACSM 2009, Seiler, IOC 2016, Kotarsky 2018). Written up in `docs/TRAINING_KNOWLEDGE.md` and shown in Settings.
+- 2026-11-05: Those six sources are now in the engine. Load jumps stay near 2–10%, a topped-out bodyweight move steps to a harder variation, rests follow beginner vs trained, and week 4 is worded as a lighter week. The workout screen shows one sentence from the source.

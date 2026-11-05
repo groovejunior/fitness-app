@@ -370,38 +370,47 @@ export function Settings() {
       <Sheet open={sourcesOpen} onClose={() => setSourcesOpen(false)} title="Where the plan comes from">
         <div className="space-y-4 pb-2 text-[15px] leading-relaxed text-ink-2" data-testid="sources-sheet">
           <p>
-            The coach is a set of rules that run on this phone. The first version used standard training practice. Next, each rule gets pinned to a published source, so you can see why a week looks the way it does.
+            The plan is a set of rules on this phone. These are the sources those rules follow. Each one is free to read.
           </p>
-          <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">The sources we will use</p>
           <ul className="space-y-3">
             <li>
               <a className="font-medium text-accent" href="https://www.health.gov.au/topics/physical-activity/24-hour-movement-guidelines-for-all-australians/recommendations-for-adults-18-to-64-years" target="_blank" rel="noreferrer">
-                Australian 24-hour movement guidelines
+                Australian movement guidelines
               </a>
-              <div className="mt-0.5 text-[14px] text-muted">Health minimums for adults here: muscle work twice a week, 30 minutes most days.</div>
+              <div className="mt-0.5 text-[14px] text-muted">The health floor: muscle work twice a week, about 30 minutes on most days.</div>
             </li>
             <li>
-              <a className="font-medium text-accent" href="https://www.who.int/publications/i/item/9789240015128" target="_blank" rel="noreferrer">
-                WHO physical activity guidelines
+              <a className="font-medium text-accent" href="https://bjsm.bmj.com/content/57/18/1211" target="_blank" rel="noreferrer">
+                Currier, 2023 — how much gym work
               </a>
-              <div className="mt-0.5 text-[14px] text-muted">The global version of the same idea. Free to read.</div>
+              <div className="mt-0.5 text-[14px] text-muted">Several sets. Heavier when you want strength. A muscle about twice a week.</div>
             </li>
             <li>
-              <a className="font-medium text-accent" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/" target="_blank" rel="noreferrer">
-                ACSM resistance-training reviews
+              <a className="font-medium text-accent" href="https://doi.org/10.1249/mss.0b013e3181915670" target="_blank" rel="noreferrer">
+                ACSM — when to add weight
               </a>
-              <div className="mt-0.5 text-[14px] text-muted">How often to train, how to add load, what actually changes results.</div>
+              <div className="mt-0.5 text-[14px] text-muted">Beat the rep target, then add a little load. Big exercises first.</div>
             </li>
             <li>
               <a className="font-medium text-accent" href="https://sportscience.sportsci.org/2009/ss.htm" target="_blank" rel="noreferrer">
-                Seiler on easy running
+                Seiler — easy running
               </a>
-              <div className="mt-0.5 text-[14px] text-muted">Why most runs stay easy, and only one or two sessions a week are hard.</div>
+              <div className="mt-0.5 text-[14px] text-muted">Most runs stay easy enough to talk. One harder session is enough until you run a lot.</div>
+            </li>
+            <li>
+              <a className="font-medium text-accent" href="https://bjsm.bmj.com/content/50/17/1030" target="_blank" rel="noreferrer">
+                Olympic committee — don't jump the load
+              </a>
+              <div className="mt-0.5 text-[14px] text-muted">Build gradually. Gym, running and sport all count.</div>
+            </li>
+            <li>
+              <a className="font-medium text-accent" href="https://journals.lww.com/nsca-jscr/fulltext/2018/03000/effect_of_progressive_calisthenic_push_up_training.9.aspx" target="_blank" rel="noreferrer">
+                Kotarsky, 2018 — harder bodyweight moves
+              </a>
+              <div className="mt-0.5 text-[14px] text-muted">When the reps get easy, change the exercise, not just the speed.</div>
             </li>
           </ul>
-          <p className="text-[14px] text-muted">
-            We will not copy copyrighted coaching books into the app. If a book and a paper say the same thing, the paper is what we cite.
-          </p>
+          <p className="text-[14px] text-muted">Coaching books stay on the shelf. If a book and a paper say the same thing, the paper is what we use.</p>
         </div>
       </Sheet>
 

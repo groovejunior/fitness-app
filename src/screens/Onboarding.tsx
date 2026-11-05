@@ -69,7 +69,7 @@ const INTENSITY: { value: SportPref['intensity']; label: string }[] = [
   { value: 'hard', label: 'Hard' },
 ];
 
-const PHASE_LABEL: Record<WeekPhase, string> = { build: 'Build', peak: 'Peak', deload: 'Deload' };
+const PHASE_LABEL: Record<WeekPhase, string> = { build: 'Build', peak: 'Peak', deload: 'Lighter' };
 
 type SportKey = 'tennis' | 'ski' | 'other';
 const SPORT_NAME: Record<Exclude<SportKey, 'other'>, string> = { tennis: 'Tennis', ski: 'Water skiing' };

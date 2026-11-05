@@ -67,7 +67,8 @@ test('sources sheet opens from settings and the handle closes it', async ({ page
   await page.reload();
   await page.getByTestId('training-sources').click();
   await expect(page.getByTestId('sources-sheet')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Australian 24-hour movement guidelines' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Australian movement guidelines' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Currier, 2023/ })).toBeVisible();
   await page.getByTestId('sheet-handle').click();
   await expect(page.getByTestId('sources-sheet')).toHaveCount(0, { timeout: 2000 });
 });

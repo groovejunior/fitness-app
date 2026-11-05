@@ -12,8 +12,7 @@ What isn't done, isn't tested, or is a known compromise.
 - The offline service worker has been built but not checked in airplane mode on a device. It needs an `https://` host to work at all.
 
 ## Training engine
-- **Rules are not yet pinned to papers.** `docs/TRAINING_KNOWLEDGE.md` lists the open sources we will use. Until that work is done, the coach is still "standard training practice," not a cited review. Settings is honest about that.
-- **The +10% weekly run cap is a coaching habit, not a proven injury law.** Buist 2008 found no injury benefit vs a faster build. We keep a gentle cap so weeks don't explode; we should not claim it prevents injuries.
+- **The +10% weekly run cap is a coaching habit, not a proven injury law.** Buist 2008 found no injury benefit vs a faster build. We keep a gentle cap so weeks don't explode. The screen does not call it an injury law. The lighter week is there so load does not only rise.
 - **Pace guidance is effort-based** (talk test) until some easy runs with distance are logged. There are no heart-rate zones.
 - **No automatic weight for a lift's first session.** The app says "pick a weight you could lift 2–3 more reps with".
 - **A week that starts mid-way drops sessions instead of cramming them in.** If the remaining free days are back to back, the week can still end up with several hard days in a row. The app warns about it but doesn't fix it.
@@ -33,7 +32,7 @@ What isn't done, isn't tested, or is a known compromise.
 
 ## Training style
 - "Bodyweight first" keeps barbell squats/deadlifts as the leg main lifts. If Carlo wants legs fully bodyweight too, pick the Bodyweight context for that session (or we add a stricter style).
-- Bodyweight progression is reps-based only. The app doesn't yet suggest moving to a harder variation (e.g. push-up → archer push-up) when you top out; the note just says to slow the lowering. Kotarsky 2018 is the paper we'd use to justify variation progressions.
+- Bodyweight progression steps to a harder variation when every set hits the top of the range, and only when that variation is doable (equipment, difficulty, same pattern). If nothing harder fits, the note still says to slow the lowering. A chain can stall at a hard move (for example a beginner who has topped out negatives but is not ready for pull-ups).
 - Weighted calisthenics (weighted pull-ups/dips) is not modelled.
 
 ## App

@@ -1,5 +1,6 @@
 // Core domain types for the training engine.
 // Pure TypeScript: no UI, no storage. Everything here is plain serialisable data.
+import type { SourceId } from './sources';
 
 /** ISO date string, yyyy-mm-dd (local calendar date). */
 export type ISODate = string;
@@ -278,6 +279,8 @@ export interface Workout {
   title: string;
   /** One plain line about why / what this workout is. */
   summary: string;
+  /** Which published source this workout is following. Optional so older saved workouts still load. */
+  source?: SourceId;
   durationMin: number;
   equipment: EquipmentContext;
   intensity: Intensity;

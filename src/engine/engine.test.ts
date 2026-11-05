@@ -3,8 +3,11 @@ import { carlo, carloAvailability, emptyHistory } from './fixtures';
 import { makeRealistic, realismCheck } from './block';
 import { RuleCoach } from './coach';
 import { addDays, mondayOf, weekdayOf } from './dates';
-import { e1rm, suggestLoad } from './progression';
+import { e1rm, nextBodyweight, suggestLoad } from './progression';
 import { generateRun } from './running';
+import { generateStrength, TEMPLATES } from './strength';
+import { generateMobility, generateSport } from './other';
+import { sourceLine } from './sources';
 import { gymSplit, runKinds, RUN_VOLUME } from './week';
 import { weekToIcs } from './ics';
 import { getExercise } from './library';
@@ -181,6 +184,24 @@ describe('week planning', () => {
     expect(gymSplit(2)).toEqual(['full-a', 'full-b']);
     expect(gymSplit(4)).toEqual(['upper', 'lower', 'upper', 'lower']);
     expect(gymSplit(6)).toHaveLength(6);
+  });
+
+  it('hits push, pull, squat and hinge at least twice in a 3-day week', () => {
+    const counts = { push: 0, pull: 0, squat: 0, hinge: 0 };
+    for (const focus of gymSplit(3)) {
+      const slots = [...TEMPLATES[focus].main, ...TEMPLATES[focus].acc];
+      for (const pattern of ['push', 'pull', 'squat', 'hinge'] as const) {
+        const hit = slots.some((slot) => {
+          const pats = Array.isArray(slot.pattern) ? slot.pattern : [slot.pattern];
+          return pats.includes(pattern);
+        });
+        if (hit) counts[pattern] += 1;
+      }
+    }
+    expect(counts.push).toBeGreaterThanOrEqual(2);
+    expect(counts.pull).toBeGreaterThanOrEqual(2);
+    expect(counts.squat).toBeGreaterThanOrEqual(2);
+    expect(counts.hinge).toBeGreaterThanOrEqual(2);
   });
 
   it('gives beginners one quality run and intermediates two', () => {
@@ -364,6 +385,32 @@ describe('progression', () => {
   it('lightens in deload weeks', () => {
     const s = suggestLoad(ex(), range, h(log([10, 10, 10], 20)), { phase: 'deload' });
     expect(s.weightKg).toBeLessThan(20);
+    expect(s.reason).toMatch(/Lighter week/);
+  });
+
+  it('uses a smaller plate when the usual jump is over 10%', () => {
+    const squat = getExercise('back-squat');
+    const s = suggestLoad(squat, { kind: 'reps', min: 5, max: 8 }, h(log([8, 8, 8], 40).map((set) => ({ ...set, exerciseId: 'back-squat' }))));
+    expect(s.weightKg).toBe(42.5);
+  });
+
+  it('keeps the weight when even the small jump is over 10%', () => {
+    const swing = getExercise('kb-swing');
+    const sets = log([12, 12, 12], 16).map((set) => ({ ...set, exerciseId: 'kb-swing' }));
+    const s = suggestLoad(swing, range, h(sets));
+    expect(s.weightKg).toBe(16);
+    expect(s.reason).toMatch(/too big/);
+  });
+
+  it('marks a bodyweight move as ready for a harder version only when every set tops out', () => {
+    const push = getExercise('incline-pushup');
+    const bw = (reps: number[]): SetLog[] =>
+      reps.map((r, i) => ({ id: `b${i}`, sessionId: 'sess1', exerciseId: 'incline-pushup', date: '2026-11-02', setIndex: i, reps: r, done: true }));
+    const topped = suggestLoad(push, range, h(bw([12, 12, 12])));
+    expect(topped.readyForHarder).toBe(true);
+    const short = suggestLoad(push, range, h(bw([12, 11, 10])));
+    expect(short.readyForHarder).toBeUndefined();
+    expect(short.reason).toMatch(/every set/);
   });
 
   it('asks for a working weight the first time', () => {
@@ -375,6 +422,122 @@ describe('progression', () => {
   it('estimates 1RM with Epley', () => {
     expect(e1rm(100, 1)).toBe(100);
     expect(Math.round(e1rm(100, 10))).toBe(133);
+  });
+});
+
+describe('cited rules', () => {
+  const gymInput = (profile: Profile, phase: 'build' | 'deload' = 'build') =>
+    ({
+      sessionId: 's',
+      date: '2026-11-03',
+      focus: 'full-a' as const,
+      durationMin: 70,
+      equipment: 'gym' as const,
+      intensity: 'moderate' as const,
+      phase,
+      weekIndex: phase === 'deload' ? 3 : 0,
+      blockId: 'block-test',
+      profile,
+      history: emptyHistory(),
+    });
+
+  it('rests beginners at or under 2 minutes and trained lifters at least 2 minutes on main strength lifts', () => {
+    const beginner = generateStrength(gymInput(carlo({ goal: 'strength', experience: { gym: 'beginner', run: 'beginner' } })));
+    const trained = generateStrength(gymInput(carlo({ goal: 'strength', experience: { gym: 'intermediate', run: 'beginner' } })));
+    const mains = (w: Workout) => w.blocks.find((b) => b.kind === 'main')!.items as StrengthItem[];
+    expect(mains(beginner).every((i) => i.restSec <= 120 && i.restSec >= 60)).toBe(true);
+    expect(mains(trained).every((i) => i.restSec >= 120)).toBe(true);
+  });
+
+  it('keeps accessory rests at 60 seconds or more, and superset rests shorter', () => {
+    const profile = carlo({ goal: 'endurance', experience: { gym: 'intermediate', run: 'intermediate' } });
+    const rec = generateStrength(gymInput(profile));
+    const alt = generateStrength(gymInput(profile), 'alternative');
+    const acc = (w: Workout) => (w.blocks.find((b) => b.kind === 'accessory')?.items ?? []) as StrengthItem[];
+    expect(acc(rec).length).toBeGreaterThan(0);
+    expect(acc(rec).every((i) => i.restSec >= 60)).toBe(true);
+    expect(acc(alt).every((i) => i.restSec <= 45)).toBe(true);
+  });
+
+  it('steps a bodyweight exercise up when every set hits the top', () => {
+    const profile = carlo();
+    const base = gymInput(profile);
+    const plain = generateStrength(base);
+    const push = strengthItems(plain).find((i) => {
+      const e = getExercise(i.exerciseId);
+      return e.pattern === 'push' && e.load === 'bodyweight';
+    });
+    expect(push).toBeDefined();
+    const swapped = generateStrength({ ...base, swaps: { [push!.exerciseId]: 'incline-pushup' } });
+    const incline = strengthItems(swapped).find((i) => i.exerciseId === 'incline-pushup');
+    expect(incline?.target.kind).toBe('reps');
+    const max = incline!.target.kind === 'reps' ? incline!.target.max : 12;
+    const setsFor = (reps: number[]): SetLog[] =>
+      reps.map((r, i) => ({
+        id: `p${i}`,
+        sessionId: 'past',
+        exerciseId: 'incline-pushup',
+        date: '2026-11-01',
+        setIndex: i,
+        reps: r,
+        done: true,
+      }));
+    const topped = generateStrength({
+      ...base,
+      swaps: { [push!.exerciseId]: 'incline-pushup' },
+      history: { sets: setsFor([max, max, max]), sessions: [] },
+    });
+    expect(topped.source).toBe('kotarsky-2018');
+    expect(strengthItems(topped).some((i) => i.exerciseId === 'incline-pushup')).toBe(false);
+    expect(strengthItems(topped).some((i) => i.note?.includes('harder version'))).toBe(true);
+    const partial = generateStrength({
+      ...base,
+      swaps: { [push!.exerciseId]: 'incline-pushup' },
+      history: { sets: setsFor([max, max - 1, max - 2]), sessions: [] },
+    });
+    expect(strengthItems(partial).some((i) => i.exerciseId === 'incline-pushup')).toBe(true);
+    expect(partial.source).toBe('currier-2023');
+  });
+
+  it('names the source in one sentence', () => {
+    const gym = generateStrength(gymInput(carlo()));
+    expect(gym.source).toBe('currier-2023');
+    expect(sourceLine(gym.source!).length).toBeGreaterThan(20);
+    const lighter = generateStrength(gymInput(carlo(), 'deload'));
+    expect(lighter.source).toBe('ioc-2016');
+    expect(lighter.summary).toMatch(/Lighter week/);
+    const run = generateRun({
+      sessionId: 'r',
+      kind: 'easy',
+      durationMin: 30,
+      equipment: 'outdoors',
+      experience: 'beginner',
+      phase: 'build',
+      weekIndex: 0,
+      history: emptyHistory(),
+    });
+    expect(run.source).toBe('seiler-2009');
+    const sport = generateSport({
+      sessionId: 't',
+      sport: 'tennis',
+      durationMin: 90,
+      intensity: 'hard',
+      equipment: 'outdoors',
+      weekIndex: 0,
+      blockId: 'b',
+      profile: carlo(),
+    });
+    expect(sport.source).toBe('ioc-2016');
+    const mobility = generateMobility({
+      sessionId: 'm',
+      durationMin: 20,
+      equipment: 'bodyweight',
+      weekIndex: 0,
+      blockId: 'b',
+      profile: carlo(),
+    });
+    expect(mobility.source).toBe('aus-movement');
+    expect(nextBodyweight('pushup', () => true)?.id).toBe('decline-pushup');
   });
 });
 

@@ -29,7 +29,7 @@ test('first month, first workout, shows in progress', async ({ page }) => {
   // --- Month plan
   await page.getByRole('button', { name: 'Plan', exact: true }).click();
   await page.getByTestId('plan-view-month').click();
-  await expect(page.getByText(/Deload/).first()).toBeVisible();
+  await expect(page.getByText(/Lighter/).first()).toBeVisible();
   await expect(page.getByTestId('month-option-alternative')).toBeVisible();
 
   // --- Week plan: every day row, at least one session this week
@@ -54,6 +54,7 @@ test('first month, first workout, shows in progress', async ({ page }) => {
   // Change context: home + shorter, the workout regenerates
   await page.getByTestId('equipment-home').click();
   await expect(page.getByTestId('exercise-row').first()).toBeVisible();
+  await expect(page.getByTestId('workout-why')).toBeVisible();
   await page.getByTestId('variant-alternative').click();
   await page.getByTestId('variant-recommended').click();
   await page.getByTestId('commit-workout').click();

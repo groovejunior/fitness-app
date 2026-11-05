@@ -8,7 +8,7 @@ import { Icon } from '../ui/Icon';
 import { Screen } from '../ui/Layout';
 import { Button, Card, cx, ProgressBar, SectionTitle, Tag, TypeMark } from '../ui/kit';
 
-const PHASE_LABEL = { build: 'Build week', peak: 'Peak week', deload: 'Deload week' } as const;
+const PHASE_LABEL = { build: 'Build week', peak: 'Peak week', deload: 'Lighter week' } as const;
 
 function cta(s: PlannedSession): { label: string; to: string } {
   switch (s.status) {

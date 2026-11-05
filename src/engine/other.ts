@@ -2,6 +2,7 @@
 import { canDo, equipmentFor, fitsStyle, styleOf } from './equipment';
 import { hash, rotate } from './hash';
 import { EXERCISES } from './library';
+import type { SourceId } from './sources';
 import type { EquipmentContext, Intensity, Profile, StrengthItem, Workout, WorkoutBlock } from './types';
 import { drillBlock } from './strength';
 
@@ -42,6 +43,7 @@ export function generateSport(input: SportInput, variant: 'recommended' | 'alter
       variant,
       title: name,
       summary: 'Counts as a training day. Five minutes of prep before you play helps.',
+      source: 'ioc-2016' satisfies SourceId,
       durationMin: input.durationMin,
       equipment: 'outdoors',
       intensity: input.intensity,
@@ -82,6 +84,7 @@ export function generateSport(input: SportInput, variant: 'recommended' | 'alter
     variant,
     title: `${name} conditioning`,
     summary: `Can't play today? ${f.note}`,
+    source: 'ioc-2016' satisfies SourceId,
     durationMin: Math.min(input.durationMin, 40),
     equipment: ctx,
     intensity: 'moderate',
@@ -123,6 +126,7 @@ export function generateMobility(input: MobilityInput, variant: 'recommended' | 
     type: 'mobility',
     variant,
     title: variant === 'alternative' ? 'Mobility flow' : 'Mobility',
+    source: 'aus-movement' satisfies SourceId,
     summary:
       variant === 'alternative'
         ? 'Shorter holds, two rounds. Good on a stiff day.'

@@ -2,11 +2,11 @@ import type { ReactNode } from 'react';
 import type { DayAvailability, Targets, WeekFocus, WeekPhase } from '../../engine/types';
 import { cx } from '../../ui/kit';
 
-export const PHASE_NAME: Record<WeekPhase, string> = { build: 'Build', peak: 'Peak', deload: 'Deload' };
+export const PHASE_NAME: Record<WeekPhase, string> = { build: 'Build', peak: 'Peak', deload: 'Lighter' };
 export const PHASE_LINE: Record<WeekPhase, string> = {
   build: 'Build: steady progress',
   peak: 'Peak: a bit more',
-  deload: 'Deload: lighter, recover',
+  deload: 'Lighter week: so the load does not jump',
 };
 
 export const FOCUS_LABEL: Record<WeekFocus, string> = {
@@ -14,7 +14,7 @@ export const FOCUS_LABEL: Record<WeekFocus, string> = {
   legs: 'More legs',
   upper: 'More upper body',
   endurance: 'More running',
-  deload: 'Deload',
+  deload: 'Lighter',
   sport: 'Sport week',
 };
 export const FOCUS_ORDER: WeekFocus[] = ['balanced', 'legs', 'upper', 'endurance', 'deload', 'sport'];

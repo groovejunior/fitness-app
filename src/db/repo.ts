@@ -1,6 +1,7 @@
 // App-level actions: the only place screens change data. Talks to the engine
 // through the CoachEngine interface and to storage through Dexie.
 import { coach } from '../engine/coach';
+import { adjustmentFor, type CheckIn } from '../engine/checkin';
 import { addDays, daysBetween, mondayOf, toISO } from '../engine/dates';
 import type {
   Block,
@@ -164,6 +165,7 @@ export async function replanWeek(weekStart: ISODate, opts: ReplanOptions = {}): 
     history,
     keep,
     fromDate,
+    adjust: await adjustmentOf(weekStart),
   });
   const variant = opts.variant ?? 'recommended';
   const plan: WeekPlan = { ...proposal[variant], variant, alternativeLabel: proposal.alternativeLabel };
@@ -192,7 +194,28 @@ export async function previewWeek(weekStart: ISODate) {
     history,
     keep,
     fromDate,
+    adjust: await adjustmentOf(weekStart),
   });
+}
+
+// ---------------------------------------------------------------------------
+// Weekly check-in
+
+async function adjustmentOf(weekStart: ISODate) {
+  const c = await db.checkIns.get(weekStart);
+  return c ? adjustmentFor(c) : undefined;
+}
+
+export async function getCheckIn(weekStart: ISODate): Promise<CheckIn | undefined> {
+  return db.checkIns.get(weekStart);
+}
+
+/** Save the check-in and re-plan the week it is for (keeping anything already done). */
+export async function saveCheckIn(c: Omit<CheckIn, 'date'>): Promise<WeekPlan | undefined> {
+  await db.checkIns.put({ ...c, date: today() });
+  const existing = await ensureWeek(c.weekStart);
+  if (!existing) return undefined;
+  return replanWeek(c.weekStart, { availability: existing.availability, focus: existing.focus === 'deload' && existing.adjustment?.focus ? 'balanced' : existing.focus });
 }
 
 export async function moveSession(sessionId: string, date: ISODate): Promise<WeekPlan | undefined> {

@@ -11,3 +11,4 @@ export { generateSport, generateMobility } from './other';
 export * from './ics';
 export * from './coach';
 export { EXERCISES, getExercise, findExercise } from './library';
+export * from './checkin';

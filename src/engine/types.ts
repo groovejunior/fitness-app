@@ -1,6 +1,7 @@
 // Core domain types for the training engine.
 // Pure TypeScript: no UI, no storage. Everything here is plain serialisable data.
 import type { SourceId } from './sources';
+import type { WeekAdjustment } from './checkin';
 
 /** ISO date string, yyyy-mm-dd (local calendar date). */
 export type ISODate = string;
@@ -231,6 +232,8 @@ export interface WeekPlan {
   variant: 'recommended' | 'alternative';
   /** Short description of the other option, for the switch on the week screen. */
   alternativeLabel?: string;
+  /** What the weekly check-in changed in this week, if anything. */
+  adjustment?: WeekAdjustment;
 }
 
 export interface WeekProposal {

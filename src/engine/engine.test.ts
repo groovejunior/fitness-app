@@ -10,6 +10,7 @@ import { generateMobility, generateSport } from './other';
 import { sourceLine } from './sources';
 import { gymSplit, runKinds, RUN_VOLUME } from './week';
 import { weekToIcs } from './ics';
+import { adjustmentFor, checkInDue, checkInTarget } from './checkin';
 import { getExercise } from './library';
 import type { DayAvailability, History, PlannedSession, Profile, SetLog, StrengthItem, WeekPlan, Workout } from './types';
 
@@ -548,5 +549,75 @@ describe('calendar export', () => {
     expect(ics.startsWith('BEGIN:VCALENDAR')).toBe(true);
     expect(ics.match(/BEGIN:VEVENT/g)?.length).toBe(week.recommended.sessions.length);
     expect(ics).toContain('DTSTART:20261105T18');
+  });
+});
+
+describe('weekly check-in', () => {
+  const plan = (adjust?: ReturnType<typeof adjustmentFor>) => {
+    const p = carlo();
+    const proposal = coach.proposeBlock(p, p.wanted, p.availability);
+    const block = coach.createBlock(p, proposal, 'recommended', MONDAY, emptyHistory());
+    return coach.planWeek({ block, profile: p, weekStart: addDays(MONDAY, 7), weekIndex: 1, focus: 'balanced', availability: p.availability, history: emptyHistory(), adjust }).recommended;
+  };
+  const minutesOf = (w: WeekPlan) => w.sessions.filter((s) => s.type !== 'sport').reduce((t, s) => t + s.durationMin, 0);
+
+  it('a steady week changes nothing', () => {
+    const a = adjustmentFor({ felt: 'right', sleep: 'good', ahead: 'normal' });
+    expect(a.volume).toBe(1);
+    expect(a.dropSessions).toBe(0);
+    expect(plan(a).sessions.map((s) => s.intent)).toEqual(plan().sessions.map((s) => s.intent));
+  });
+
+  it('too hard + poor sleep turns the week into a lighter week', () => {
+    const a = adjustmentFor({ felt: 'too-hard', sleep: 'poor', ahead: 'normal' });
+    expect(a.focus).toBe('deload');
+    const w = plan(a);
+    expect(w.phase).toBe('deload');
+    expect(w.sessions.some((s) => ['tempo', 'intervals', 'progression'].includes(s.intent))).toBe(false);
+    expect(w.adjustment?.notes.length).toBeGreaterThan(0);
+  });
+
+  it('a busy week drops one session, a very busy week two, but keeps tennis and one of each', () => {
+    const base = plan().sessions.length;
+    const busy = plan(adjustmentFor({ felt: 'right', sleep: 'good', ahead: 'busy' }));
+    const very = plan(adjustmentFor({ felt: 'right', sleep: 'good', ahead: 'very-busy' }));
+    expect(busy.sessions.length).toBe(base - 1);
+    expect(very.sessions.length).toBe(base - 2);
+    for (const w of [busy, very]) {
+      expect(w.sessions.some((s) => s.type === 'sport')).toBe(true);
+      expect(w.sessions.some((s) => s.type === 'gym')).toBe(true);
+      expect(w.sessions.some((s) => s.type === 'run')).toBe(true);
+    }
+    expect(minutesOf(very)).toBeLessThan(minutesOf(busy));
+  });
+
+  it('poor sleep keeps hard runs out', () => {
+    const w = plan(adjustmentFor({ felt: 'right', sleep: 'poor', ahead: 'normal' }));
+    expect(w.sessions.some((s) => ['tempo', 'intervals', 'progression'].includes(s.intent))).toBe(false);
+  });
+
+  it('an easy week only nudges up a little and never adds sessions', () => {
+    const a = adjustmentFor({ felt: 'too-easy', sleep: 'good', ahead: 'normal' });
+    expect(a.volume).toBeLessThanOrEqual(1.05);
+    expect(plan(a).sessions.length).toBe(plan().sessions.length);
+  });
+
+  it('the volume change stays inside a small band', () => {
+    for (const felt of ['too-easy', 'right', 'too-hard'] as const)
+      for (const sleep of ['good', 'ok', 'poor'] as const)
+        for (const ahead of ['normal', 'busy', 'very-busy'] as const) {
+          const a = adjustmentFor({ felt, sleep, ahead });
+          expect(a.volume).toBeGreaterThanOrEqual(0.75);
+          expect(a.volume).toBeLessThanOrEqual(1.05);
+          expect(a.source).toBe('ioc-2016');
+        }
+  });
+
+  it('plans next week from Friday, this week before that; prompts at the weekend', () => {
+    expect(checkInTarget('2026-11-06')).toBe('2026-11-09'); // Fri
+    expect(checkInTarget('2026-11-03')).toBe('2026-11-02'); // Tue
+    expect(checkInDue('2026-11-07', () => false)).toBe('2026-11-09'); // Sat
+    expect(checkInDue('2026-11-07', () => true)).toBeUndefined();
+    expect(checkInDue('2026-11-04', () => false)).toBeUndefined(); // Wed: no nagging
   });
 });

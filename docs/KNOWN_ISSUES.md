@@ -35,6 +35,11 @@ What isn't done, isn't tested, or is a known compromise.
 - Bodyweight progression steps to a harder variation when every set hits the top of the range, and only when that variation is doable (equipment, difficulty, same pattern). If nothing harder fits, the note still says to slow the lowering. A chain can stall at a hard move (for example a beginner who has topped out negatives but is not ready for pull-ups).
 - Weighted calisthenics (weighted pull-ups/dips) is not modelled.
 
+## Weekly check-in
+- Three fixed questions, no free text, no soreness/pain question. Pain should not be handled by a planner anyway: the app doesn't give injury advice.
+- It changes one week at a time and doesn't look at trends (e.g. three hard weeks in a row).
+- No reminder notification: the prompt only shows when you open the app at the weekend or on Monday/Tuesday.
+
 ## App
 - **Sheet drag-to-dismiss is tested in Playwright Chromium, not on a real iPhone yet.** Safari touch and the home-indicator area can still surprise us.
 - Calendar export uses fixed start times per time window (07:00, 12:00, 18:00) and doesn't know your timetable.

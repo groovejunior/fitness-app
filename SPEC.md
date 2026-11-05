@@ -73,6 +73,9 @@ Short, friendly steps: goal, sports, experience, availability (days + typical ti
 - Weekly volume per muscle group.
 - Minimal charts, no clutter.
 
+### 5.6b Weekly check-in (added Nov 2026)
+At the weekend (and Mon/Tue as catch-up) Today offers a 3-tap check-in: how training felt (too easy / about right / too hard), sleep (well / okay / badly), and how the week ahead looks (normal / busy / very busy). Next week adapts: lighter week when run down, one or two sessions fewer for busy weeks, no hard runs after poor sleep, a small +5% nudge when it felt easy. Never adds sessions; fixed sport days stay. The week view says what changed and why.
+
 ### 5.7 Settings
 Profile edit, units (kg/km default), backup export/import (JSON), reset data, theme (system / light / dark).
 

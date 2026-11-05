@@ -75,6 +75,14 @@ for (const theme of ['light', 'dark'] as const) {
 
     await go(page, '/progress');
     await shot('11-progress', true);
+    await page.evaluate(() => localStorage.setItem('fitness.today', '2026-11-07'));
+    await go(page, '/checkin');
+    await page.getByTestId('felt-too-hard').click();
+    await page.getByTestId('sleep-ok').click();
+    await page.getByTestId('ahead-busy').click();
+    await shot('14-checkin');
+    await page.evaluate((d) => localStorage.setItem('fitness.today', d), TODAY);
+
     await go(page, '/settings');
     await shot('12-settings', true);
     await page.getByTestId('training-sources').click();

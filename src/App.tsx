@@ -13,6 +13,7 @@ import { Progress } from './screens/Progress';
 import { SessionDetail } from './screens/SessionDetail';
 import { Settings } from './screens/Settings';
 import { Today } from './screens/Today';
+import { CheckIn } from './screens/CheckIn';
 
 export function App() {
   const route = useRoute();
@@ -32,6 +33,7 @@ export function App() {
   if (profile === null || p0 === 'onboarding') return <Onboarding />;
   if (!ready) return null;
 
+  if (p0 === 'checkin') return <CheckIn />;
   if (p0 === 'session' && p1) {
     if (p2 === 'active') return <ActiveWorkout sessionId={p1} />;
     if (p2 === 'done') return <Finish sessionId={p1} />;

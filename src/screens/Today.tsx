@@ -3,6 +3,9 @@ import { weekDates } from '../engine/dates';
 import type { PlannedSession, WeekPlan } from '../engine/types';
 import { dayAndDate, dayLong, dayShort, minutes } from '../lib/format';
 import { useWeek } from '../lib/hooks';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../db/db';
+import { checkInDue } from '../engine/checkin';
 import { navigate } from '../lib/router';
 import { Icon } from '../ui/Icon';
 import { Screen } from '../ui/Layout';
@@ -107,7 +110,11 @@ export function Today() {
   const t = today();
   const weekStart = mondayOf(t);
   const week = useWeek(weekStart);
+  const doneKeys = useLiveQuery(() => db.checkIns.toCollection().primaryKeys(), []);
+  // Only ask once there's a week to look back on (at least one logged session).
+  const hasLogs = useLiveQuery(async () => (await db.sessionLogs.count()) > 0, []);
   if (!week) return null;
+  const due = doneKeys && hasLogs ? checkInDue(t, (ws) => doneKeys.includes(ws)) : undefined;
 
   const todays = week.sessions.filter((s) => s.date === t);
   const main = todays.filter((s) => s.type !== 'mobility');
@@ -156,6 +163,19 @@ export function Today() {
           </Card>
         ))}
       </div>
+
+      {due && (
+        <Card className="mt-3 flex items-center gap-3" onClick={() => navigate('/checkin')} data-testid="checkin-card">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
+            <Icon name="refresh" size={21} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[17px] font-semibold">Weekly check-in</div>
+            <div className="text-[14px] leading-snug text-muted">Three taps, and {due > t ? 'next week' : 'this week'} fits how you're doing.</div>
+          </div>
+          <Icon name="chevron-right" size={18} className="shrink-0 text-muted" />
+        </Card>
+      )}
 
       <SectionTitle action={<span className="text-[13px] font-medium text-muted">{PHASE_LABEL[week.phase]}</span>}>This week</SectionTitle>
       <WeekStrip week={week} t={t} />

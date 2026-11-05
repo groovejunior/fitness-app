@@ -25,6 +25,7 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - Training style defaults to **bodyweight first** (Carlo's wish: calisthenics + a few classic lifts, no machines); changeable in Settings.
 - Bottom sheets: grabber bar now drags (or taps) to dismiss.
 - Training knowledge: the six sources drive the coach (Australian guidelines, Currier 2023, ACSM 2009 progression, Seiler, IOC load consensus, Kotarsky 2018). Settings lists them. Each workout carries a source id and the screen shows one sentence. Load steps stay inside about 2–10%, bodyweight moves step up when every set tops out, rests follow the beginner / trained split, and week 4 is a lighter week so the load does not only rise.
+- Weekly check-in (3 taps at the weekend) adapts next week: lighter when run down, fewer sessions in busy weeks; IOC 2016 load consensus as source.
 - Not tested on a real iPhone yet; see `docs/KNOWN_ISSUES.md`.
 
 ## 4. Open questions for Carlo (later)
@@ -40,3 +41,4 @@ Carlo Müller's personal fitness PWA. **Read `SPEC.md` first**: it is the source
 - 2026-11-04: Sheet grabber bar now dismisses (drag / flick / tap). Training knowledge: research into open sources; decision is a cited rulebook (`docs/TRAINING_KNOWLEDGE.md`); Settings explains it. Engine not rewritten yet.
 - 2026-11-05: Sheet-grabber PR merged. Deeper source pass: six sources chosen to drive the coach (Australian guidelines, Currier 2023, ACSM 2009, Seiler, IOC 2016, Kotarsky 2018). Written up in `docs/TRAINING_KNOWLEDGE.md` and shown in Settings.
 - 2026-11-05: Those six sources are now in the engine. Load jumps stay near 2–10%, a topped-out bodyweight move steps to a harder variation, rests follow beginner vs trained, and week 4 is worded as a lighter week. The workout screen shows one sentence from the source.
+- 2026-11-05: Weekly check-in built (`src/engine/checkin.ts`, `src/screens/CheckIn.tsx`, Dexie v2 `checkIns` table). Today shows it at the weekend; the week view explains what changed.

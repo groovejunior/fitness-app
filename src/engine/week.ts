@@ -5,6 +5,7 @@ import { MIN_SESSION_MIN, PHASES, qualityRunsPerWeek } from './block';
 import { addDays, weekDates, WEEKDAY_SHORT } from './dates';
 import { RUN_TITLE, isQuality } from './running';
 import { TEMPLATES } from './strength';
+import type { WeekAdjustment } from './checkin';
 import type {
   Block,
   DayAvailability,
@@ -36,6 +37,8 @@ export interface WeekInput {
   keep?: PlannedSession[];
   /** Days before this date are in the past and get no new sessions. */
   fromDate?: ISODate;
+  /** From the weekly check-in: shorter / fewer / easier sessions. */
+  adjust?: WeekAdjustment;
 }
 
 /** A session to place, before it has a day. */
@@ -155,6 +158,8 @@ function adjustSplit(split: GymFocus[], focus: WeekFocus): { focus: GymFocus; em
 
 function buildSpecs(input: WeekInput, phase: WeekPhase, targets: Targets): Spec[] {
   const { profile, block, focus } = input;
+  const vol = input.adjust?.volume ?? 1;
+  const easier = input.adjust?.easier ?? false;
   const specs: Spec[] = [];
   const deload = phase === 'deload';
 
@@ -165,8 +170,8 @@ function buildSpecs(input: WeekInput, phase: WeekPhase, targets: Targets): Spec[
       type: 'gym',
       intent: g.focus,
       title: TEMPLATES[g.focus].title + (g.emphasis === 'lower' ? ', legs focus' : g.emphasis === 'upper' ? ', upper focus' : ''),
-      durationMin: deload ? Math.max(30, block.gymMinutes - 15) : block.gymMinutes,
-      intensity: deload || focus === 'sport' ? 'easy' : phase === 'peak' ? 'hard' : 'moderate',
+      durationMin: Math.max(25, Math.round(((deload ? Math.max(30, block.gymMinutes - 15) : block.gymMinutes) * vol) / 5) * 5),
+      intensity: deload || focus === 'sport' ? 'easy' : phase === 'peak' && !easier ? 'hard' : 'moderate',
       emphasis: g.emphasis,
       priority: i === 0 ? 9 : 6 - i,
     }),
@@ -174,7 +179,8 @@ function buildSpecs(input: WeekInput, phase: WeekPhase, targets: Targets): Spec[
 
   let kinds = runKinds(targets.run, profile.experience.run, input.weekIndex, profile.goal);
   if (deload || focus === 'sport') kinds = kinds.map((k) => (isQuality(k) ? 'strides' : k === 'long' && focus === 'sport' ? 'easy' : k));
-  const weeklyMin = Math.round(block.baseRunMinutes * RUN_VOLUME[Math.min(input.weekIndex, 3)] * (focus === 'deload' && phase !== 'deload' ? 0.8 : 1));
+  if (easier) kinds = kinds.map((k) => (isQuality(k) ? 'easy' : k));
+  const weeklyMin = Math.round(block.baseRunMinutes * RUN_VOLUME[Math.min(input.weekIndex, 3)] * (focus === 'deload' && phase !== 'deload' ? 0.8 : 1) * vol);
   const durations = runDurations(kinds, weeklyMin, profile.experience.run);
   kinds.forEach((k, i) =>
     specs.push({
@@ -555,10 +561,13 @@ function materialise(
     sessions,
     warnings: validateWeek(sessions, input.availability, input.weekStart),
     variant,
+    adjustment: input.adjust,
   };
 }
 
-export function planWeek(input: WeekInput): WeekProposal {
+export function planWeek(rawInput: WeekInput): WeekProposal {
+  // A check-in may only make the week lighter: it can switch the focus to a lighter week.
+  const input: WeekInput = rawInput.adjust?.focus ? { ...rawInput, focus: rawInput.adjust.focus } : rawInput;
   const blockPhase = input.block.phases[input.weekIndex] ?? PHASES[Math.min(input.weekIndex, 3)];
   const phase: WeekPhase = input.focus === 'deload' ? 'deload' : blockPhase;
   const option = input.block.options.find((o) => o.key === input.block.chosen) ?? input.block.options[0];
@@ -571,6 +580,24 @@ export function planWeek(input: WeekInput): WeekProposal {
     const i = specs.findIndex((s) => s.type === k.type && s.intent === k.intent);
     const j = i >= 0 ? i : specs.findIndex((s) => s.type === k.type);
     if (j >= 0) specs = specs.filter((_, x) => x !== j);
+  }
+
+  // Check-in: drop the least important sessions (never a fixed sport day).
+  const dropN = input.adjust?.dropSessions ?? 0;
+  if (dropN > 0) {
+    const drop = new Set(
+      specs
+        .filter((s) => s.fixedDay === undefined && s.type !== 'mobility')
+        .sort((a, b) => a.priority - b.priority || (a.key < b.key ? 1 : -1))
+        .slice(0, dropN)
+        .map((s) => s.key),
+    );
+    // Keep at least one gym session and one run if they were planned.
+    for (const t of ['gym', 'run'] as const) {
+      const all = specs.filter((s) => s.type === t);
+      if (all.length > 0 && all.every((s) => drop.has(s.key))) drop.delete(all.sort((a, b) => b.priority - a.priority)[0].key);
+    }
+    specs = specs.filter((s) => !drop.has(s.key));
   }
 
   const dates = weekDates(input.weekStart);

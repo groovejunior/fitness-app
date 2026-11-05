@@ -34,6 +34,8 @@ Key choices made while building v1, and why. Newest at the bottom of each sectio
   - Bodyweight ranges: 5–8 for pull-ups and dips, 8–12 for other mains. When every set hits the top, the next session is a harder variation of the same pattern (Kotarsky 2018), if equipment and difficulty allow. Otherwise the note says to slow the lowering. A push-up never turns into a bench press by itself.
   - "Free weights" and "anything" styles are one tap away in Settings.
 
+- **Weekly check-in** (`src/engine/checkin.ts`): three questions map to one `WeekAdjustment` (volume ×0.75–1.05, drop 0–2 sessions, optional lighter-week focus, "easier" = no quality runs or peak-hard gym). Grounded in the IOC 2016 load consensus (short self-reports to steer load; avoid spikes). Rules are deliberately one-directional: answers can make a week lighter freely, but "more" is capped at +5% and never adds sessions. Dropped sessions follow the same priority list as mid-week trimming, keep at least one gym session and one run, and never touch fixed sport days. The check-in is stored per target week and re-applied whenever that week is re-planned, so changing availability later keeps it.
+
 ## Animations
 - **One stick-figure rig for every exercise** (`src/animations/rig.ts`), side view, with poses given as joint angles and blended frame to frame. This is what keeps all ~70 illustrations in the same line style, and makes them cheap to add. Frames are snapped to the ground automatically. Reduced-motion users see a still pose.
 

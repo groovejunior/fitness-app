@@ -253,6 +253,24 @@ export function Week() {
         {isPast && <span className="text-[14px] text-muted">· Read only</span>}
       </div>
 
+      {week.adjustment && week.adjustment.notes.length > 0 && (week.adjustment.volume !== 1 || week.adjustment.dropSessions > 0 || week.adjustment.focus) && (
+        <div className="mt-3" data-testid="week-checkin">
+          <Notice tone="info" icon="refresh">
+            <div className="font-semibold">From your check-in</div>
+            <ul className="mt-1 space-y-1">
+              {week.adjustment.notes.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ul>
+            {!isPast && (
+              <button type="button" onClick={() => navigate('/checkin')} className="mt-2 text-[14px] font-semibold text-accent">
+                Change answers
+              </button>
+            )}
+          </Notice>
+        </div>
+      )}
+
       {week.warnings.length > 0 && (
         <div className="mt-3" data-testid="week-warnings">
           <Notice>
